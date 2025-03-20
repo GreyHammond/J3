@@ -2,6 +2,8 @@
 #include "common.hpp"
 
 #include "buffer/d3d_buffer.hpp"
+#include "material/texture.hpp"
+#include "mesh/mesh.hpp"
 #include "shader/shader.hpp"
 
 class adapter_data {
@@ -37,14 +39,15 @@ private:
 
     d3d_buffer vertex_buffer;
     d3d_buffer index_buffer;
-    d3d_buffer constant_buffer;
+    d3d_buffer vertex_constant_buffer;
+    d3d_buffer pixel_constant_buffer;
     
     winrt::com_ptr<ID3D11RasterizerState> rasterizer_state;
 
     winrt::com_ptr<ID3D11SamplerState> sampler_state;
     winrt::com_ptr<ID3D11ShaderResourceView> a_texture;
     
-    void render_frame();
+    void render_frame(entt::registry& registry);
     
     void create_device_and_swap_chain();
     void create_render_target();
@@ -52,7 +55,9 @@ private:
     void create_rasterizer();
     void create_sampler();
     void setup_shaders();
-    void load_textures();
     void create_constant_buffers();
-    void initialize_scene();
+    //void initialize_scene();
+
+    void ensure_texture_loaded(const std::shared_ptr<material>& mat);
+    void ensure_mesh_buffers_created(const std::shared_ptr<mesh>& m);
 };

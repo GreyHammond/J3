@@ -1,7 +1,11 @@
 #include "window.hpp"
 
 #include "application.hpp" // avoid circular dependency
+#include "component/basic/drawable.hpp"
+#include "component/basic/transform.hpp"
 #include "system/render/renderer.hpp"
+
+LOAD_RESOURCE(resources_textures_mart_png)
 
 window::window(const HINSTANCE instance, const std::wstring& title, const vector2 size, const bool main_window) {
     this->main_window = main_window;
@@ -45,8 +49,26 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
 
     // add and initialize systems
     ecs.add_system<renderer>(handle, size); // hardware accelerated by default
-
     ecs.initialize();
+
+    // test drawing entity
+    auto entity = ecs.create_entity();
+    ecs.add_component<drawable>(entity,
+        std::make_shared<mesh>(std::vector<vertex>{
+            { { -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+            { { 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+            { { -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+            { { 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+        },
+        std::vector<DWORD>{
+            0, 1, 2,
+            2, 1, 3
+        }),
+        std::make_shared<material>(vector4{ 1, 1, 1, 1 }, std::make_shared<texture>(GET_RESOURCE(resources_textures_mart_png))));
+
+    auto& tr = ecs.add_component<transform>(entity);
+    tr.set_position({100, 100});
+    tr.set_scale({200, 200});
 }
 
 void window::show() const {

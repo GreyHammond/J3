@@ -2,13 +2,13 @@
 
 #include <WICTextureLoader.h>
 
+#include "component/basic/drawable.hpp"
+#include "component/basic/transform.hpp"
 #include "mesh/vertex.hpp"
 #include "resource/resource.hpp"
 
 LOAD_RESOURCE(obj_vertex_vs_cso)
 LOAD_RESOURCE(obj_pixel_ps_cso)
-
-LOAD_RESOURCE(resources_textures_mart_png)
 
 renderer::renderer(const HWND handle, const vector2 size, const bool hardware_accelerated) {
     this->window_handle = handle;
@@ -23,10 +23,7 @@ void renderer::initialize() {
     create_rasterizer();
     create_sampler();
     setup_shaders();
-    load_textures();
     create_constant_buffers();
-
-    initialize_scene();
 }
 
 void renderer::update(entt::registry& registry) {
@@ -36,14 +33,14 @@ void renderer::update(entt::registry& registry) {
     // - sort entities by render_layer if layout is dirty
     // - render entities in order
     
-    render_frame();
+    render_frame(registry);
 }
 
 void renderer::destroy() {
     //
 }
 
-void renderer::render_frame() {
+void renderer::render_frame(entt::registry& registry) {
     float background[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     this->device_context->ClearRenderTargetView(this->render_target_view.get(), background);
 
@@ -55,36 +52,59 @@ void renderer::render_frame() {
     auto sampler = sampler_state.get();
     this->device_context->PSSetSamplers(0, 1, &sampler);
 
-    // drawing individual objects starts here and ends at Present
-    auto texture = a_texture.get();
-    this->device_context->PSSetShaderResources(0, 1, &texture);
-    this->device_context->VSSetShader(vs.get().get(), nullptr, 0);
-    this->device_context->PSSetShader(ps.get().get(), nullptr, 0);
+    // entities should be sorted at this point
+    auto view = registry.view<drawable, transform>();
+    for (auto entity : view) {
+        // my rendering pipeline!!!
+        
+        auto& d = view.get<drawable>(entity);
+        auto& t = view.get<transform>(entity);
 
-    // update constant buffer
-    cb_vertex cb = { };
+        // 1: ensure all resources are loaded
+        ensure_texture_loaded(d.mat);
+        ensure_mesh_buffers_created(d.mesh);
 
-    matrix world = DirectX::XMMatrixScaling(200.0f, 200.0f, 1.0f) * DirectX::XMMatrixTranslation(100.0f, 100.0f, 0.0f);
+        // 2: set up shaders
+        if (d.mat->tex != nullptr) {
+            auto srv = d.mat->tex->texture_view.get();
+            this->device_context->PSSetShaderResources(0, 1, &srv);
+        }
+        this->device_context->VSSetShader(vs.get().get(), nullptr, 0);
+        this->device_context->PSSetShader(ps.get().get(), nullptr, 0);
 
-    // orthographic projection
-    static matrix projection = DirectX::XMMatrixOrthographicOffCenterLH(
-        0.0f, this->window_size.x,
-        this->window_size.y, 0.0f,
-        0.0f, 1.0f
-    );
-    
-    cb.mat = world * projection;
-    cb.mat = DirectX::XMMatrixTranspose(cb.mat);
-    constant_buffer.edit(device_context, &cb, sizeof(cb));
+        // 3: update matrices and set constant buffers
+        cb_vertex cb = { };
+        cb.mat = t.get_matrix();
 
-    auto cb_ptr = constant_buffer.get().get();
-    this->device_context->VSSetConstantBuffers(0, 1, &cb_ptr);
-    
-    const UINT offset = 0;
-    auto vb = vertex_buffer.get().get();
-    this->device_context->IASetVertexBuffers(0, 1, &vb, vertex_buffer.stride_ptr(), &offset);
-    this->device_context->IASetIndexBuffer(index_buffer.get().get(), DXGI_FORMAT_R32_UINT, 0);
-    this->device_context->DrawIndexed(index_buffer.size(), 0, 0);
+        // this could go somewhere else if i planned to do more with it
+        static matrix projection = DirectX::XMMatrixOrthographicOffCenterLH(
+            0.0f, this->window_size.x,
+            this->window_size.y, 0.0f,
+            0.0f, 1.0f
+        );
+
+        cb.mat *= projection;
+        cb.mat = DirectX::XMMatrixTranspose(cb.mat);
+        vertex_constant_buffer.edit(device_context, &cb, sizeof(cb)); // is reusing the same buffer okay?
+
+        cb_pixel cbp = { };
+        cbp.has_color = d.mat->tex != nullptr ? 0.0f : 1.0f;
+        pixel_constant_buffer.edit(device_context, &cbp, sizeof(cbp));
+        
+        auto cb_ptr = vertex_constant_buffer.get().get();
+        auto cbp_ptr = pixel_constant_buffer.get().get();
+        this->device_context->VSSetConstantBuffers(0, 1, &cb_ptr);
+        this->device_context->PSSetConstantBuffers(0, 1, &cbp_ptr);
+
+        // 4: set vertex and index buffers
+        const UINT offset = 0;
+        auto vb = d.mesh->vertex_buffer->get().get();
+        this->device_context->IASetVertexBuffers(0, 1, &vb, d.mesh->vertex_buffer->stride_ptr(), &offset);
+        this->device_context->IASetIndexBuffer(d.mesh->index_buffer->get().get(), DXGI_FORMAT_R32_UINT, 0);
+
+        // 5: draw
+        this->device_context->DrawIndexed(d.mesh->indices.size(), 0, 0);
+    }
 
     this->swap_chain->Present(1, 0);
 }
@@ -192,39 +212,52 @@ void renderer::setup_shaders() {
     }
 }
 
-void renderer::load_textures() {
-    resource tex = GET_RESOURCE(resources_textures_mart_png);
+void renderer::create_constant_buffers() {
+    vertex_constant_buffer.initialize<cb_vertex>(this->device);
+    pixel_constant_buffer.initialize<cb_pixel>(this->device);
+}
+
+void renderer::ensure_texture_loaded(const std::shared_ptr<material>& mat) {
+    if (mat->tex == nullptr || mat->tex->texture_view != nullptr) {
+        return;
+    }
     
-    HRESULT hr = DirectX::CreateWICTextureFromMemory(
-        this->device.get(),
-        reinterpret_cast<const uint8_t*>(tex.data()),
-        tex.size(),
-        nullptr,
-        this->a_texture.put()
-    );
+    HRESULT hr;
+    winrt::com_ptr<ID3D11Resource> texture_resource;
+    
+    if (mat->tex->path != L"") {
+        // load texture from file
+        hr = DirectX::CreateWICTextureFromFile(
+            this->device.get(),
+            mat->tex->path.c_str(),
+            texture_resource.put(),
+            mat->tex->texture_view.put()
+        );
+    } else {
+        // load texture from resource
+        hr = DirectX::CreateWICTextureFromMemory(
+            this->device.get(),
+            reinterpret_cast<const uint8_t*>(mat->tex->res.data()),
+            mat->tex->res.size(),
+            texture_resource.put(),
+            mat->tex->texture_view.put()
+        );
+    }
+
+    D3D11_TEXTURE2D_DESC desc = { };
+    texture_resource.as<ID3D11Texture2D>()->GetDesc(&desc);
+    mat->tex->size = { static_cast<float>(desc.Width), static_cast<float>(desc.Height) };
 
     if (FAILED(hr)) {
         // handle error
     }
 }
 
-void renderer::create_constant_buffers() {
-    constant_buffer.initialize<cb_vertex>(this->device);
-}
-
-void renderer::initialize_scene() {
-    constexpr vertex v[] = {
-        { { -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        { { 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
-        { { -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-        { { 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-    };
-
-    constexpr DWORD i[] = {
-        0, 1, 2,
-        2, 1, 3
-    };
-
-    vertex_buffer.initialize(device, v, ARRAYSIZE(v), D3D11_BIND_VERTEX_BUFFER);
-    index_buffer.initialize(device, i, ARRAYSIZE(i), D3D11_BIND_INDEX_BUFFER);
+void renderer::ensure_mesh_buffers_created(const std::shared_ptr<mesh>& m) {
+    if (m->vertex_buffer->size() != 0 && m->index_buffer->size() != 0) {
+        return;
+    }
+    
+    m->vertex_buffer->initialize(this->device, m->vertices.data(), m->vertices.size(), D3D11_BIND_VERTEX_BUFFER);
+    m->index_buffer->initialize(this->device, m->indices.data(), m->indices.size(), D3D11_BIND_INDEX_BUFFER);
 }

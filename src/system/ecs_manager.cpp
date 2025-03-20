@@ -11,3 +11,7 @@ void ecs_manager::update() {
         system->update(registry);
     }
 }
+
+entt::entity ecs_manager::create_entity() {
+    return registry.create();
+}

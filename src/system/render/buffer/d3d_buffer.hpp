@@ -31,9 +31,7 @@ public:
         }
     }
 
-    [[nodiscard]]
-
-    winrt::com_ptr<ID3D11Buffer>& get() {
+    [[nodiscard]] winrt::com_ptr<ID3D11Buffer>& get() {
         return this->buffer;
     }
 

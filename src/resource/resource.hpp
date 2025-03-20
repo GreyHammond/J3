@@ -2,7 +2,9 @@
 #include "common.hpp"
 
 struct resource {
+    static resource empty() { return resource{nullptr, nullptr}; }
     resource(const char* begin, const char* end) : _begin(begin), _end(end) {}
+    
     [[nodiscard]] const char* data() const { return _begin; }
     [[nodiscard]] const char* begin() const { return _begin; }
     [[nodiscard]] const char* end() const { return _end; }
@@ -12,7 +14,7 @@ struct resource {
         return {
             reinterpret_cast<const std::byte*>(this->begin()),
             reinterpret_cast<const std::byte*>(this->end())
-    };
+        };
     }
 private:
     const char* _begin;

@@ -1,3 +1,8 @@
+cbuffer CONSTANT_DATA : register(b0)
+{
+    float hasColor; // set to 1 for full color, 0 for texture
+};
+
 struct PS_INPUT
 {
     float4 inPos : SV_POSITION;
@@ -10,8 +15,11 @@ SamplerState sam : SAMPLER : register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    // TODO: use constant data to use either color or texture
+    if (hasColor > 0.5f)
+    {
+        return input.inColor;
+    }
+
     float3 color = tex.Sample(sam, input.inTexCoord).xyz;
-    // float4 color = input.inColor;
     return float4(color, 1.0f);
 }
