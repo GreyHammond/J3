@@ -20,6 +20,7 @@
 #include <utility>
 #include <memory>
 #include <print>
+#include <mutex>
 
 // libraries
 #include <entt/entt.hpp>

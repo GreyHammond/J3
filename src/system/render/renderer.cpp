@@ -61,12 +61,12 @@ void renderer::render_frame(entt::registry& registry) {
         auto& t = view.get<transform>(entity);
 
         // 1: ensure all resources are loaded
-        ensure_texture_loaded(d.mat);
+        ensure_texture_loaded(d.tex);
         ensure_mesh_buffers_created(d.mesh);
 
         // 2: set up shaders
-        if (d.mat->tex != nullptr) {
-            auto srv = d.mat->tex->texture_view.get();
+        if (d.tex != nullptr) {
+            auto srv = d.tex->texture_view.get();
             this->device_context->PSSetShaderResources(0, 1, &srv);
         }
         this->device_context->VSSetShader(vs.get().get(), nullptr, 0);
@@ -88,7 +88,7 @@ void renderer::render_frame(entt::registry& registry) {
         vertex_constant_buffer.edit(device_context, &cb, sizeof(cb)); // is reusing the same buffer okay?
 
         cb_pixel cbp = { };
-        cbp.has_color = d.mat->tex != nullptr ? 0.0f : 1.0f;
+        cbp.has_color = d.tex != nullptr ? 0.0f : 1.0f;
         pixel_constant_buffer.edit(device_context, &cbp, sizeof(cbp));
         
         auto cb_ptr = vertex_constant_buffer.get().get();
@@ -217,36 +217,36 @@ void renderer::create_constant_buffers() {
     pixel_constant_buffer.initialize<cb_pixel>(this->device);
 }
 
-void renderer::ensure_texture_loaded(const std::shared_ptr<material>& mat) {
-    if (mat->tex == nullptr || mat->tex->texture_view != nullptr) {
+void renderer::ensure_texture_loaded(const std::shared_ptr<texture>& tex) {
+    if (tex == nullptr || tex->texture_view != nullptr) {
         return;
     }
     
     HRESULT hr;
     winrt::com_ptr<ID3D11Resource> texture_resource;
     
-    if (mat->tex->path != L"") {
+    if (tex->path != L"") {
         // load texture from file
         hr = DirectX::CreateWICTextureFromFile(
             this->device.get(),
-            mat->tex->path.c_str(),
+            tex->path.c_str(),
             texture_resource.put(),
-            mat->tex->texture_view.put()
+            tex->texture_view.put()
         );
     } else {
         // load texture from resource
         hr = DirectX::CreateWICTextureFromMemory(
             this->device.get(),
-            reinterpret_cast<const uint8_t*>(mat->tex->res.data()),
-            mat->tex->res.size(),
+            reinterpret_cast<const uint8_t*>(tex->res.data()),
+            tex->res.size(),
             texture_resource.put(),
-            mat->tex->texture_view.put()
+            tex->texture_view.put()
         );
     }
 
     D3D11_TEXTURE2D_DESC desc = { };
     texture_resource.as<ID3D11Texture2D>()->GetDesc(&desc);
-    mat->tex->size = { static_cast<float>(desc.Width), static_cast<float>(desc.Height) };
+    tex->size = { static_cast<float>(desc.Width), static_cast<float>(desc.Height) };
 
     if (FAILED(hr)) {
         // handle error

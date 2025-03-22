@@ -51,24 +51,45 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     ecs.add_system<renderer>(handle, size); // hardware accelerated by default
     ecs.initialize();
 
+    // create resources
+    auto& app = application::get();
+    
+    auto quad = app.resources.add<mesh>("quad", std::vector<vertex>{
+        { { -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+        { { 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+        { { -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+        { { 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+    }, std::vector<DWORD>{
+        0, 1, 2,
+        2, 1, 3
+    });
+
+    auto mart = app.resources.add<texture>("mart", GET_RESOURCE(resources_textures_mart_png));
+
+    auto red_quad = app.resources.add<mesh>("red_quad", std::vector<vertex>{
+        { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+        { { 0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+        { { -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+        { { 0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+    }, std::vector<DWORD>{
+        0, 1, 2,
+        2, 1, 3
+    });
+
     // test drawing entity
     auto entity = ecs.create_entity();
-    ecs.add_component<drawable>(entity,
-        std::make_shared<mesh>(std::vector<vertex>{
-            { { -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-            { { 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
-            { { -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-            { { 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-        },
-        std::vector<DWORD>{
-            0, 1, 2,
-            2, 1, 3
-        }),
-        std::make_shared<material>(vector4{ 1, 1, 1, 1 }, std::make_shared<texture>(GET_RESOURCE(resources_textures_mart_png))));
+    ecs.add_component<drawable>(entity, quad, mart);
 
     auto& tr = ecs.add_component<transform>(entity);
-    tr.set_position({100, 100});
     tr.set_scale({200, 200});
+
+    auto entity2 = ecs.create_entity();
+    auto& d = ecs.add_component<drawable>(entity2);
+    d.mesh = red_quad;
+
+    auto& tr2 = ecs.add_component<transform>(entity2);
+    tr2.set_position({300, 300});
+    tr2.set_scale({100, 100});
 }
 
 void window::show() const {

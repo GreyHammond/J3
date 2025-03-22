@@ -58,6 +58,6 @@ private:
     void create_constant_buffers();
     //void initialize_scene();
 
-    void ensure_texture_loaded(const std::shared_ptr<material>& mat);
+    void ensure_texture_loaded(const std::shared_ptr<texture>& tex);
     void ensure_mesh_buffers_created(const std::shared_ptr<mesh>& m);
 };

@@ -43,7 +43,7 @@ public:
         if (this->dirty_matrix) {
             this->mat = DirectX::XMMatrixScaling(scale.x, scale.y, 1.0f) *
                 DirectX::XMMatrixRotationZ(rotation) *
-                DirectX::XMMatrixTranslation(position.x, position.y, 0.0f);
+                DirectX::XMMatrixTranslation(position.x + scale.x / 2, position.y + scale.y / 2, 0.0f);
 
             this->dirty_matrix = false;
         }

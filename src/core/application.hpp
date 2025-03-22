@@ -3,11 +3,13 @@
 #include "timer.hpp"
 
 #include "window.hpp"
+#include "resource/resource_manager.hpp"
 
 class application {
 public:
     std::vector<std::unique_ptr<window>> windows;
     timer time;
+    resource_manager resources;
     
     explicit application(HINSTANCE instance);
 
