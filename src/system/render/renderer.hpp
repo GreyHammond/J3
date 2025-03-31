@@ -34,18 +34,12 @@ private:
     winrt::com_ptr<ID3D11RenderTargetView> render_target_view;
 
     winrt::com_ptr<ID3D11InputLayout> input_layout;
-    vertex_shader vs;
-    pixel_shader ps;
 
     d3d_buffer vertex_buffer;
     d3d_buffer index_buffer;
-    d3d_buffer vertex_constant_buffer;
-    d3d_buffer pixel_constant_buffer;
     
     winrt::com_ptr<ID3D11RasterizerState> rasterizer_state;
-
     winrt::com_ptr<ID3D11SamplerState> sampler_state;
-    winrt::com_ptr<ID3D11ShaderResourceView> a_texture;
     
     void render_frame(entt::registry& registry);
     
@@ -54,9 +48,7 @@ private:
     void set_viewport();
     void create_rasterizer();
     void create_sampler();
-    void setup_shaders();
-    void create_constant_buffers();
-    //void initialize_scene();
+    void create_default_resources();
 
     void ensure_texture_loaded(const std::shared_ptr<texture>& tex);
     void ensure_mesh_buffers_created(const std::shared_ptr<mesh>& m);

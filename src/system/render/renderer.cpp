@@ -22,8 +22,7 @@ void renderer::initialize() {
     set_viewport();
     create_rasterizer();
     create_sampler();
-    setup_shaders();
-    create_constant_buffers();
+    create_default_resources();
 }
 
 void renderer::update(entt::registry& registry) {
@@ -41,7 +40,8 @@ void renderer::destroy() {
 }
 
 void renderer::render_frame(entt::registry& registry) {
-    float background[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    // TODO: move setting the background to a function perhaps
+    constexpr float background[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     this->device_context->ClearRenderTargetView(this->render_target_view.get(), background);
 
     this->device_context->IASetInputLayout(input_layout.get());
@@ -64,17 +64,22 @@ void renderer::render_frame(entt::registry& registry) {
         ensure_texture_loaded(d.tex);
         ensure_mesh_buffers_created(d.mesh);
 
-        // 2: set up shaders
+        // 2: set shaders and resources
+        auto& app = application::get();
+        
+        auto vs = d.vs != nullptr ? d.vs : app.resources.get<vertex_shader>("default");
+        auto ps = d.ps != nullptr ? d.ps : app.resources.get<pixel_shader>("default");
+        this->device_context->VSSetShader(vs->get().get(), nullptr, 0);
+        this->device_context->PSSetShader(ps->get().get(), nullptr, 0);
+
         if (d.tex != nullptr) {
             auto srv = d.tex->texture_view.get();
             this->device_context->PSSetShaderResources(0, 1, &srv);
         }
-        this->device_context->VSSetShader(vs.get().get(), nullptr, 0);
-        this->device_context->PSSetShader(ps.get().get(), nullptr, 0);
-
+        
         // 3: update matrices and set constant buffers
-        cb_vertex cb = { };
-        cb.mat = t.get_matrix();
+        cb_vertex cbv = d.vs_cbuffer; // copies existing values in case they were set somewhere else
+        cbv.mat = t.get_matrix();
 
         // this could go somewhere else if i planned to do more with it
         static matrix projection = DirectX::XMMatrixOrthographicOffCenterLH(
@@ -83,12 +88,16 @@ void renderer::render_frame(entt::registry& registry) {
             0.0f, 1.0f
         );
 
-        cb.mat *= projection;
-        cb.mat = DirectX::XMMatrixTranspose(cb.mat);
-        vertex_constant_buffer.edit(device_context, &cb, sizeof(cb)); // is reusing the same buffer okay?
+        cbv.mat *= projection;
+        cbv.mat = DirectX::XMMatrixTranspose(cbv.mat);
 
-        cb_pixel cbp = { };
+        auto& vertex_constant_buffer = vs->get_constant_buffer();
+        vertex_constant_buffer.edit(device_context, &cbv, sizeof(cbv)); // is reusing the same buffer okay?
+
+        cb_pixel cbp = d.ps_cbuffer;
         cbp.has_color = d.tex != nullptr ? 0.0f : 1.0f;
+
+        auto& pixel_constant_buffer = ps->get_constant_buffer();
         pixel_constant_buffer.edit(device_context, &cbp, sizeof(cbp));
         
         auto cb_ptr = vertex_constant_buffer.get().get();
@@ -106,14 +115,17 @@ void renderer::render_frame(entt::registry& registry) {
         this->device_context->DrawIndexed(d.mesh->indices.size(), 0, 0);
     }
 
-    this->swap_chain->Present(1, 0);
+    HRESULT hr = this->swap_chain->Present(1, 0);
+    if (FAILED(hr)) {
+        // log error
+    }
 }
 
 void renderer::create_device_and_swap_chain() {
     DXGI_SWAP_CHAIN_DESC swap_chain_desc = { };
 
-    swap_chain_desc.BufferDesc.Width = this->window_size.x;
-    swap_chain_desc.BufferDesc.Height = this->window_size.y;
+    swap_chain_desc.BufferDesc.Width = static_cast<UINT>(this->window_size.x);
+    swap_chain_desc.BufferDesc.Height = static_cast<UINT>(this->window_size.y);
     
     // probably get the refresh rate from the monitor
     swap_chain_desc.BufferDesc.RefreshRate.Numerator = 60;
@@ -190,31 +202,32 @@ void renderer::create_sampler() {
     }
 }
 
-void renderer::setup_shaders() {
-    D3D11_INPUT_ELEMENT_DESC* input_layout = vertex::get_input_layout();
-
+void renderer::create_default_resources() {
+    auto& app = application::get();
+    
     const auto vertex_shader_data = GET_RESOURCE(obj_vertex_vs_cso);
     const auto pixel_shader_data = GET_RESOURCE(obj_pixel_ps_cso);
+    
+    auto default_vs = app.resources.add<vertex_shader>("default");
+    auto default_ps = app.resources.add<pixel_shader>("default");
+    default_vs->initialize(this->device, vertex_shader_data);
+    default_vs->set_constant_buffer<cb_vertex>(this->device);
+    default_ps->initialize(this->device, pixel_shader_data);
+    default_ps->set_constant_buffer<cb_pixel>(this->device);
 
-    vs.initialize(device, vertex_shader_data);
-    ps.initialize(device, pixel_shader_data);
-
+    // create input layout here because it's the same for all vertex shaders
+    D3D11_INPUT_ELEMENT_DESC* input_layout = vertex::get_input_layout();
     HRESULT hr = this->device->CreateInputLayout(
         input_layout,
         3,
-        vs.data(),
-        vs.size(), // shader bytecode size
+        default_vs->data(),
+        default_vs->size(), // shader bytecode size
         this->input_layout.put()
     );
 
     if (FAILED(hr)) {
         // handle error
     }
-}
-
-void renderer::create_constant_buffers() {
-    vertex_constant_buffer.initialize<cb_vertex>(this->device);
-    pixel_constant_buffer.initialize<cb_pixel>(this->device);
 }
 
 void renderer::ensure_texture_loaded(const std::shared_ptr<texture>& tex) {
