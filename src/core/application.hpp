@@ -10,6 +10,7 @@ public:
     std::vector<std::unique_ptr<window>> windows;
     timer time;
     resource_manager resources;
+    std::shared_ptr<spdlog::logger> log;
     
     explicit application(HINSTANCE instance);
 

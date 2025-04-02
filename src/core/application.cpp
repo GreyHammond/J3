@@ -1,10 +1,28 @@
 #include "application.hpp"
 
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/dup_filter_sink.h>
+#include <spdlog/sinks/msvc_sink.h>
+#include <spdlog/sinks/stdout_sinks.h>
+
 alignas(application) char application_buffer[sizeof(application)];
 
 application::application(const HINSTANCE instance) {
     this->instance = instance;
 
+    auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_st>(std::chrono::seconds(2));
+    
+    const auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+    const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+    const auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("Current.log");
+
+    dup_filter->add_sink(msvc_sink);
+    dup_filter->add_sink(stdout_sink);
+    dup_filter->add_sink(file_sink);
+
+    this->log = std::make_shared<spdlog::logger>("j3", dup_filter);
+    this->log->info("application start");
+    
     HRESULT hr = CoInitialize(nullptr);
     if (FAILED(hr)) { // although this will probably never fail
         // handle error
