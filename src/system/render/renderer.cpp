@@ -18,7 +18,7 @@ renderer::renderer(const HWND handle, const vector2 size, const bool hardware_ac
 
 void renderer::initialize() {
     create_device_and_swap_chain();
-    create_render_target();
+    create_render_targets();
     set_viewport();
     create_rasterizer();
     create_sampler();
@@ -50,7 +50,8 @@ void renderer::set_background_color(const vector4 col) {
 }
 
 void renderer::render_frame(entt::registry& registry) {
-    this->device_context->ClearRenderTargetView(this->render_target_view.get(), background_color.data());
+    this->device_context->ClearRenderTargetView(this->multisampled_render_target_view.get(), background_color.data());
+    this->device_context->ClearDepthStencilView(this->multisampled_depth_stencil_view.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
     this->device_context->IASetInputLayout(input_layout.get());
     this->device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -124,6 +125,11 @@ void renderer::render_frame(entt::registry& registry) {
         this->device_context->DrawIndexed(d.mesh->indices.size(), 0, 0);
     }
 
+    this->device_context->ResolveSubresource(this->render_target.get(), 0,
+        this->multisampled_render_target.get(), 0,
+        this->back_buffer_format
+    );
+
     HRESULT hr = this->swap_chain->Present(1, 0);
     if (FAILED(hr)) {
         // log error
@@ -140,7 +146,7 @@ void renderer::create_device_and_swap_chain() {
     swap_chain_desc.BufferDesc.RefreshRate.Numerator = 60;
     swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
     
-    swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swap_chain_desc.BufferDesc.Format = this->back_buffer_format;
     swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
     swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
@@ -174,20 +180,68 @@ void renderer::create_device_and_swap_chain() {
     }
 }
 
-void renderer::create_render_target() {
-    winrt::com_ptr<ID3D11Texture2D> back_buffer;
-    HRESULT hr = this->swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), back_buffer.put_void());
+void renderer::create_render_targets() {
+    HRESULT hr = this->swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), this->render_target.put_void());
     if (FAILED(hr)) {
         // handle error
     }
     
-    hr = this->device->CreateRenderTargetView(back_buffer.get(), nullptr, this->render_target_view.put());
+    hr = this->device->CreateRenderTargetView(this->render_target.get(), nullptr, this->render_target_view.put());
     if (FAILED(hr)) {
         // handle error
     }
 
-    auto rtv = this->render_target_view.get();
-    this->device_context->OMSetRenderTargets(1, &rtv, nullptr);
+    // msaa
+    CD3D11_TEXTURE2D_DESC multisampled_texture_desc(
+        this->back_buffer_format,
+        this->window_size.x,
+        this->window_size.y,
+        1, 1,
+        D3D11_BIND_RENDER_TARGET,
+        D3D11_USAGE_DEFAULT,
+        0,
+        this->msaa_count,
+        this->msaa_quality
+    );
+
+    hr = this->device->CreateTexture2D(&multisampled_texture_desc, nullptr, this->multisampled_render_target.put());
+    if (FAILED(hr)) {
+        // handle error
+    }
+
+    CD3D11_RENDER_TARGET_VIEW_DESC render_target_desc(D3D11_RTV_DIMENSION_TEXTURE2DMS);
+    hr = this->device->CreateRenderTargetView(this->multisampled_render_target.get(), &render_target_desc,
+        this->multisampled_render_target_view.put());
+    if (FAILED(hr)) {
+        // handle error
+    }
+
+    CD3D11_TEXTURE2D_DESC multisampled_depth_desc(
+        DXGI_FORMAT_D32_FLOAT,
+        this->window_size.x,
+        this->window_size.y,
+        1, 1,
+        D3D11_BIND_RENDER_TARGET,
+        D3D11_USAGE_DEFAULT,
+        0,
+        this->msaa_count,
+        this->msaa_quality
+    );
+
+    winrt::com_ptr<ID3D11Texture2D> depth_buffer;
+    hr = this->device->CreateTexture2D(&multisampled_depth_desc, nullptr, depth_buffer.put());
+    if (FAILED(hr)) {
+        // handle error
+    }
+
+    CD3D11_DEPTH_STENCIL_VIEW_DESC view_desc(D3D11_DSV_DIMENSION_TEXTURE2DMS);
+    hr = this->device->CreateDepthStencilView(depth_buffer.get(), &view_desc, this->multisampled_depth_stencil_view.put());
+    if (FAILED(hr)) {
+        // handle error
+    }
+
+    auto target_ptr = multisampled_render_target_view.get();
+    this->device_context->OMSetRenderTargets(1, &target_ptr, this->multisampled_depth_stencil_view.get());
 }
 
 void renderer::set_viewport() {
@@ -196,7 +250,9 @@ void renderer::set_viewport() {
 }
 
 void renderer::create_rasterizer() {
-    const CD3D11_RASTERIZER_DESC desc(D3D11_DEFAULT); // solid fill mode, cull back, front is clockwise
+    CD3D11_RASTERIZER_DESC desc(D3D11_DEFAULT); // solid fill mode, cull back, front is clockwise
+    desc.MultisampleEnable = true; // oh yeah multisampling too
+    
     HRESULT hr = this->device->CreateRasterizerState(&desc, this->rasterizer_state.put());
     if (FAILED(hr)) {
         // handle error

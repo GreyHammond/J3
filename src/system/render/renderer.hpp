@@ -29,11 +29,21 @@ private:
     vector2 window_size = { 0, 0 };
     bool hardware_accelerated = true; // by default
     std::array<float, 4> background_color;
+    DXGI_FORMAT back_buffer_format = DXGI_FORMAT_R8G8B8A8_UNORM;
     
     winrt::com_ptr<ID3D11Device> device;
     winrt::com_ptr<ID3D11DeviceContext> device_context;
     winrt::com_ptr<IDXGISwapChain> swap_chain;
+
+    winrt::com_ptr<ID3D11Texture2D> render_target;
     winrt::com_ptr<ID3D11RenderTargetView> render_target_view;
+
+    // for MSAA
+    UINT msaa_count = 4;
+    UINT msaa_quality = 0;
+    winrt::com_ptr<ID3D11Texture2D> multisampled_render_target;
+    winrt::com_ptr<ID3D11RenderTargetView> multisampled_render_target_view;
+    winrt::com_ptr<ID3D11DepthStencilView> multisampled_depth_stencil_view;
 
     winrt::com_ptr<ID3D11InputLayout> input_layout;
 
@@ -47,7 +57,7 @@ private:
     void render_frame(entt::registry& registry);
     
     void create_device_and_swap_chain();
-    void create_render_target();
+    void create_render_targets();
     void set_viewport();
     void create_rasterizer();
     void create_sampler();
