@@ -14,6 +14,8 @@ application::application(const HINSTANCE instance) {
     
     const auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
     const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+
+    // TODO: emulate legacy's current and previous log behavior
     const auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("Current.log");
 
     dup_filter->add_sink(msvc_sink);
@@ -21,15 +23,23 @@ application::application(const HINSTANCE instance) {
     dup_filter->add_sink(file_sink);
 
     this->log = std::make_shared<spdlog::logger>("j3", dup_filter);
-    this->log->info("application start");
-    
-    HRESULT hr = CoInitialize(nullptr);
-    if (FAILED(hr)) { // although this will probably never fail
-        // handle error
+    this->log->info("Application start");
+
+    #ifdef NDEBUG
+        log->set_level(spdlog::level::info);
+    #else // debug
+        log->set_level(spdlog::level::debug);
+    #endif
+
+    if (HRESULT hr = CoInitialize(nullptr); FAILED(hr)) { // although this will probably never fail
+        this->log->critical("CoInitialize failed with HRESULT 0x{:08X}", hr);
+        this->quit(-1);
     }
+
+    this->log->debug("Initialized COM apartment");
     
     // get icon because i don't want to load one from a file
-    std::array<wchar_t, MAX_PATH> module_path;
+    std::array<wchar_t, MAX_PATH> module_path = { };
     GetModuleFileName(this->instance, module_path.data(), MAX_PATH);
     HICON icon = ExtractIcon(this->instance, module_path.data(), 0);
 
@@ -44,10 +54,14 @@ application::application(const HINSTANCE instance) {
     window_class.hIcon = icon;
     window_class.lpszClassName = WINDOW_CLASS_NAME;
 
-    ATOM atom = RegisterClassExW(&window_class);
+    ATOM atom = RegisterClassEx(&window_class);
     if (atom == 0) {
-        // handle error
+        this->log->critical("Registering window class failed with result 0x{:08X}", GetLastError());
+        this->quit(-1);
+        return;
     }
+
+    this->log->debug("Application singleton initialized");
 }
 
 application& application::get() {
@@ -65,6 +79,7 @@ void application::run() {
     main_window->show();
 
     // window loop
+    this->log->info("Now running");
     MSG message = { };
     while (running) {
         while (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
@@ -84,10 +99,18 @@ void application::run() {
             window->update();
         }
     }
+
+    this->log->info("Application end");
 }
 
-void application::quit() {
-    PostQuitMessage(0);
+void application::quit(const int exit_code) {
+    if (!running) {
+        this->log->warn("Exiting immediately");
+        exit(exit_code);
+    }
+
+    this->log->debug("Application exit requested");
+    PostQuitMessage(exit_code);
 }
 
 std::unique_ptr<window>& application::create_window(const std::wstring& title, vector2 size) {

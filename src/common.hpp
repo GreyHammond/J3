@@ -37,3 +37,10 @@ using matrix = DirectX::XMMATRIX;
 using matrix4x3 = DirectX::XMFLOAT4X3;
 using matrix4x4 = DirectX::XMFLOAT4X4;
 using quaternion = DirectX::XMFLOAT4;
+
+// helper macro for logging an HRESULT
+    #define LOG_HRESULT(level, reason, hr) \
+    if (FAILED(hr)) { \
+        application::get().log->level("{} with HRESULT: 0x{:08X}", reason, hr); \
+    }
+// LOG_HRESULT

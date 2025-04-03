@@ -17,7 +17,7 @@ public:
     static application& get();
 
     void run();
-    void quit();
+    void quit(int exit_code = 0);
 
     std::unique_ptr<window>& create_window(const std::wstring& title, vector2 size);
     std::unique_ptr<window>& create_window(const std::wstring& title, vector2 position, vector2 size);
