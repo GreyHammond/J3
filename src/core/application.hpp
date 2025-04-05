@@ -1,16 +1,17 @@
 #pragma once
 #include "common.hpp"
-#include "timer.hpp"
 
-#include "window.hpp"
 #include "resource/resource_manager.hpp"
+#include "log.hpp"
+#include "timer.hpp"
+#include "window.hpp"
 
 class application {
 public:
     std::vector<std::unique_ptr<window>> windows;
     timer time;
     resource_manager resources;
-    std::shared_ptr<spdlog::logger> log;
+    class log log;
     
     explicit application(HINSTANCE instance);
 

@@ -26,7 +26,7 @@ void renderer::initialize() {
     create_blend_state();
     create_default_resources();
 
-    application::get().log->debug("Initialized renderer for a window");
+    application::get().log.debug("Initialized renderer for a window");
 }
 
 void renderer::update(entt::registry& registry) {
@@ -40,7 +40,7 @@ void renderer::update(entt::registry& registry) {
 }
 
 void renderer::destroy() {
-    application::get().log->debug("Renderer destroyed");
+    application::get().log.debug("Renderer destroyed");
 }
 
 void renderer::set_background_color(const vector4 col) {

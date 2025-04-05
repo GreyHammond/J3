@@ -46,11 +46,11 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     );
 
     if (handle == nullptr) {
-        app.log->error("Window creation failed with result 0x{:08X}", GetLastError());
+        app.log.error("Window creation failed with result 0x{:08X}", GetLastError());
         return;
     }
 
-    app.log->debug("Window created");
+    app.log.debug("Window created");
 
     // add and initialize systems
     ecs.add_system<renderer>(handle, size); // hardware accelerated by default
@@ -77,13 +77,13 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     tr.set_scale({ 1500, 1500 });
     tr.set_rotation(30);
 
-    app.log->debug("Window systems initialized");
+    app.log.debug("Window systems initialized");
 }
 
 void window::show() const {
     ShowWindow(handle, SW_SHOW);
     UpdateWindow(handle);
-    application::get().log->debug("Window shown");
+    application::get().log.debug("Window shown");
 }
 
 void window::update() {
@@ -96,13 +96,13 @@ void window::close() {
     
     auto& app = application::get();
     if (main_window) {
-        app.log->debug("Main window closed");
+        app.log.debug("Main window closed");
         app.windows.clear();
         app.quit();
         return; // although app terminates at this point
     }
 
-    app.log->debug("Window closed");
+    app.log.debug("Window closed");
     
     std::erase_if(app.windows, [this](const std::unique_ptr<window>& window) {
         return window->handle == this->handle;

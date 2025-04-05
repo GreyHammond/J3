@@ -1,42 +1,22 @@
 #include "application.hpp"
 
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/dup_filter_sink.h>
-#include <spdlog/sinks/msvc_sink.h>
-#include <spdlog/sinks/stdout_sinks.h>
+#include "special_folder.hpp"
 
 alignas(application) char application_buffer[sizeof(application)];
 
 application::application(const HINSTANCE instance) {
-    this->instance = instance;
-
-    auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_st>(std::chrono::seconds(2));
+    const std::filesystem::path log_folder = special_folder::get(FOLDERID_LocalAppData) / "J3" / "Logs";
+    this->log.init(log_folder);
     
-    const auto msvc_sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-    const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-
-    // TODO: emulate legacy's current and previous log behavior
-    const auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("Current.log");
-
-    dup_filter->add_sink(msvc_sink);
-    dup_filter->add_sink(stdout_sink);
-    dup_filter->add_sink(file_sink);
-
-    this->log = std::make_shared<spdlog::logger>("j3", dup_filter);
-    this->log->info("Application start");
-
-    #ifdef NDEBUG
-        log->set_level(spdlog::level::info);
-    #else // debug
-        log->set_level(spdlog::level::debug);
-    #endif
-
+    this->instance = instance;
+    this->log.info("Application start");
+    
     if (HRESULT hr = CoInitialize(nullptr); FAILED(hr)) { // although this will probably never fail
-        this->log->critical("CoInitialize failed with HRESULT 0x{:08X}", hr);
+        this->log.critical("CoInitialize failed with HRESULT 0x{:08X}", hr);
         this->quit(-1);
     }
 
-    this->log->debug("Initialized COM apartment");
+    this->log.debug("Initialized COM apartment");
     
     // get icon because i don't want to load one from a file
     std::array<wchar_t, MAX_PATH> module_path = { };
@@ -56,12 +36,12 @@ application::application(const HINSTANCE instance) {
 
     ATOM atom = RegisterClassEx(&window_class);
     if (atom == 0) {
-        this->log->critical("Registering window class failed with result 0x{:08X}", GetLastError());
+        this->log.critical("Registering window class failed with result 0x{:08X}", GetLastError());
         this->quit(-1);
         return;
     }
 
-    this->log->debug("Application singleton initialized");
+    this->log.debug("Application singleton initialized");
 }
 
 application& application::get() {
@@ -79,7 +59,7 @@ void application::run() {
     main_window->show();
 
     // window loop
-    this->log->info("Now running");
+    this->log.info("Now running");
     MSG message = { };
     while (running) {
         while (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
@@ -100,16 +80,16 @@ void application::run() {
         }
     }
 
-    this->log->info("Application end");
+    this->log.info("Application end");
 }
 
 void application::quit(const int exit_code) {
     if (!running) {
-        this->log->warn("Exiting immediately");
+        this->log.warn("Exiting immediately");
         exit(exit_code);
     }
 
-    this->log->debug("Application exit requested");
+    this->log.debug("Application exit requested");
     PostQuitMessage(exit_code);
 }
 

@@ -2,6 +2,7 @@
 
 // windows related includes
 #include <Windows.h>
+#include <ShlObj.h>
 #include <d3d11.h>
 #include <dxgi1_4.h>
 #include <d3dcompiler.h>
@@ -22,6 +23,7 @@
 #include <print>
 #include <mutex>
 #include <array>
+#include <filesystem>
 
 // libraries
 #include <entt/entt.hpp>
@@ -41,6 +43,6 @@ using quaternion = DirectX::XMFLOAT4;
 // helper macro for logging an HRESULT
     #define LOG_HRESULT(level, reason, hr) \
     if (FAILED(hr)) { \
-        application::get().log->level("{} with HRESULT: 0x{:08X}", reason, hr); \
+        application::get().log.level("{} with HRESULT: 0x{:08X}", reason, hr); \
     }
 // LOG_HRESULT
