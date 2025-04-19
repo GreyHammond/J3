@@ -34,9 +34,15 @@ FetchContent_MakeAvailable(spdlog entt DirectXTK)
 # create obj directory for intermediate files
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/obj)
 
+# define common folders
+set(OBJ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/obj)
+set(TOOL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools)
+
 file(GLOB VERTEX_SHADERS CONFIGURE_DEPENDS "resources/shaders/*.vs.hlsl")
 file(GLOB PIXEL_SHADERS CONFIGURE_DEPENDS "resources/shaders/*.ps.hlsl")
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp" "src/*.hpp")
+
+file(GLOB FONTS CONFIGURE "resources/fonts/*.ttf")
 
 set_source_files_properties(${VERTEX_SHADERS} PROPERTIES ShaderType "vs")
 set_source_files_properties(${PIXEL_SHADERS} PROPERTIES ShaderType "ps")
@@ -50,14 +56,15 @@ function(ADD_SHADERS out_var)
         get_filename_component(FILE_WE ${FILE} NAME_WLE)
         get_source_file_property(SHADER_TYPE ${FILE} ShaderType)
         get_source_file_property(SHADER_MODEL ${FILE} ShaderModel)
-        add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/obj/${FILE_WE}.cso
-                COMMAND fxc.exe /nologo /Emain /T${SHADER_TYPE}_${SHADER_MODEL} $<IF:$<CONFIG:DEBUG>,/Od,/O1> /Fo ${CMAKE_CURRENT_SOURCE_DIR}/obj/${FILE_WE}.cso ${FILE}
+        add_custom_command(
+                OUTPUT ${OBJ_DIR}/${FILE_WE}.cso
+                COMMAND fxc.exe /nologo /Emain /T${SHADER_TYPE}_${SHADER_MODEL} $<IF:$<CONFIG:DEBUG>,/Od,/O1> /Fo ${OBJ_DIR}/${FILE_WE}.cso ${FILE}
                 DEPENDS ${FILE}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                 COMMENT "Building shader ${FILE_WE}.cso"
                 VERBATIM
         )
-        list(APPEND result ${CMAKE_CURRENT_SOURCE_DIR}/obj/${FILE_WE}.cso)
+        list(APPEND result ${OBJ_DIR}/${FILE_WE}.cso)
     endforeach()
     set(${out_var} "${result}" PARENT_SCOPE)
 endfunction()
@@ -68,8 +75,9 @@ function(ADD_RESOURCES out_var)
         file(RELATIVE_PATH src_f ${CMAKE_SOURCE_DIR} ${in_f})
         get_filename_component(in_f_name ${in_f} NAME)
         set(out_f "${PROJECT_BINARY_DIR}/${in_f_name}.o")
-        add_custom_command(OUTPUT ${out_f}
-                COMMAND ld -r -b binary -o ${out_f} ${src_f}
+        add_custom_command(
+                OUTPUT ${out_f}
+                COMMAND ${TOOL_DIR}/ld.exe -r -b binary -o ${out_f} ${src_f}
                 DEPENDS ${in_f}
                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                 COMMENT "Adding resource ${in_f}"
@@ -80,17 +88,40 @@ function(ADD_RESOURCES out_var)
     set(${out_var} "${result}" PARENT_SCOPE)
 endfunction()
 
+function(ADD_FONTS out_var)
+    set(result)
+    foreach(in_f ${ARGN})
+        file(RELATIVE_PATH src_f ${CMAKE_SOURCE_DIR} ${in_f})
+        get_filename_component(in_f_name ${in_f} NAME)
+        add_custom_command(
+                OUTPUT "${OBJ_DIR}/${in_f_name}.png" "${OBJ_DIR}/${in_f_name}.json"
+                COMMAND ${TOOL_DIR}/msdf-atlas-gen.exe -font ${src_f} -format png -imageout ${OBJ_DIR}/${in_f_name}.png -json ${OBJ_DIR}/${in_f_name}.json -size 36 -pxrange 6
+                DEPENDS ${in_f}
+                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                COMMENT "Building font ${in_f}"
+                VERBATIM
+        )
+        list(APPEND result "${OBJ_DIR}/${in_f_name}.png" "${OBJ_DIR}/${in_f_name}.json")
+    endforeach()
+    set(${out_var} "${result}" PARENT_SCOPE)
+endfunction()
+
 ### shaders
 
 add_shaders(SHADER_OUTPUTS ${VERTEX_SHADERS} ${PIXEL_SHADERS})
+
+### fonts
+
+add_fonts(FONT_OUTPUTS ${FONTS})
 
 ### resources
 
 file(GLOB_RECURSE INTERMEDIARIES CONFIGURE_DEPENDS "obj/*")
 
-# all resources except shaders get embedded into the executable
+# all resources except shaders and fonts get embedded into the executable
 file(GLOB_RECURSE RESOURCES CONFIGURE_DEPENDS "resources/*")
 list(FILTER RESOURCES EXCLUDE REGEX "resources/shaders/*")
+list(FILTER RESOURCES EXCLUDE REGEX "resources/fonts/*")
 
 add_resources(RESOURCE_OBJECTS
         ${INTERMEDIARIES}
@@ -99,7 +130,7 @@ add_resources(RESOURCE_OBJECTS
 
 ### exe
 
-add_executable(j3 WIN32 ${SOURCES} ${SHADER_OUTPUTS} ${RESOURCE_OBJECTS})
+add_executable(j3 WIN32 ${SOURCES} ${SHADER_OUTPUTS} ${FONT_OUTPUTS} ${RESOURCE_OBJECTS})
 
 ### includes and libraries
 
