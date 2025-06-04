@@ -28,7 +28,6 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(spdlog entt DirectXTK)
-FetchContent_GetProperties(artery-font-format)
 
 ### source files
 
