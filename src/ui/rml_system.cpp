@@ -99,70 +99,233 @@ std::string_view rml_system::get_default_styles_str() {
     // source: https://github.com/mikke89/RmlUi/blob/master/Samples/assets/rml.rcss
     return R"(
         /*
-        * Default styles for all the basic elements.
-        */
+		* Default styles for all the basic elements.
+		*/
 
-        div
-        {
-	        display: block;
-        }
+		div {
+			display: block;
+		}
 
-        p
-        {
-	        display: block;
-        }
+		body {
+			font-family: Montserrat;
+			font-size: 16px;
+		    width: 100vw;
+		    height: 100vh;
+		    z-index: -1;
+		    display: flex;
+			padding: 0 2em;
+		    flex-direction: column;
+		}
 
-        h1
-        {
-	        display: block;
-        }
+		title {
+			font-family: Montserrat;
 
-        em
-        {
-	        font-style: italic;
-        }
+		}
 
-        strong
-        {
-	        font-weight: bold;
-        }
+		.fill {
+			flex: 1;
+		}
 
-        select
-        {
-	        text-align: left;
-        }
+		input.range {
+			display: block;
+			width: 100%;
+			background-color: #222;
+		}
 
-        tabset tabs
-        {
-	        display: block;
-        }
 
-        table {
-	        box-sizing: border-box;
-	        display: table;
-        }
+		input.range slidertrack {
+			margin-top: 3dp;
+			background-color: #919191;
+		}
 
-        tr {
-	        box-sizing: border-box;
-	        display: table-row;
-        }
+		input.range sliderbar {
+			width: 34dp;
+			background-color: #51357e;
+			border-radius: 20dp;
+		}
 
-        td {
-	        box-sizing: border-box;
-	        display: table-cell;
-        }
+		scrollbarvertical {
+			width: 20dp;
+			background-color: #FFF;
+		}
 
-        col {
-	        box-sizing: border-box;
-	        display: table-column;
-        }
+		scrollbarvertical sliderbar {
+			width: 20dp;
+			background-color: #000000;
+		}
 
-        colgroup {
-	        display: table-column-group;
-        }
+		scrollbarhorizontal {
+			height: 20dp;
+			background-color: #FFF;
+		}
 
-        thead, tbody, tfoot {
-	        display: table-row-group;
-        }
+		scrollbarhorizontal sliderbar {
+			height: 20dp;
+			background-color: #000000;
+		}
+
+		scrollbarhorizontal slidertrack {
+			background-color: #FDD;
+		}
+
+		p {
+			display: block;
+		}
+
+		h1 {
+			display: block;
+		}
+
+		em {
+			font-style: italic;
+		}
+
+		strong {
+			font-weight: bold;
+		}
+
+		select {
+			text-align: left;
+		}
+
+		tabset tabs {
+			display: block;
+		}
+
+		table {
+			box-sizing: border-box;
+			display: table;
+		}
+
+		tr {
+			box-sizing: border-box;
+			display: table-row;
+		}
+
+		td {
+			box-sizing: border-box;
+			display: table-cell;
+		}
+
+		col {
+			box-sizing: border-box;
+			display: table-column;
+		}
+
+		colgroup {
+			display: table-column-group;
+		}
+
+		thead,
+		tbody,
+		tfoot {
+			display: table-row-group;
+		}
+
+		body,
+		div,
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6,
+		p,
+		hr,
+		pre,
+		tabset tabs {
+			display: block;
+		}
+
+		h1 {
+			font-size: 2em;
+			font-weight: 900;
+			margin: .67em 0;
+		}
+
+		h2 {
+			font-size: 1.5em;
+			margin: .75em 0;
+		}
+
+		h3 {
+			font-size: 1.17em;
+			margin: .83em 0;
+		}
+
+		h4,
+		p {
+			margin: 1.12em 0;
+		}
+
+		h5 {
+			font-size: .83em;
+			margin: 1.5em 0;
+		}
+
+		h6 {
+			font-size: .75em;
+			margin: 1.67em 0;
+		}
+
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6,
+		strong {
+			font-weight: bold;
+		}
+
+		em {
+			font-style: italic;
+		}
+
+		span {
+			white-space: nowrap;
+		}
+
+		pre {
+			white-space: pre;
+		}
+
+		hr {
+			border-width: 1dp;
+		}
+
+		table {
+			box-sizing: border-box;
+			display: table;
+		}
+
+		tr {
+			box-sizing: border-box;
+			display: table-row;
+		}
+
+		td {
+			box-sizing: border-box;
+			display: table-cell;
+		}
+
+		col {
+			box-sizing: border-box;
+			display: table-column;
+		}
+
+		colgroup {
+			display: table-column-group;
+		}
+
+		thead,
+		tbody,
+		tfoot {
+			display: table-row-group;
+		}
+
+		button:hover {
+			filter: brightness(120%);
+		}
     )";
 }
