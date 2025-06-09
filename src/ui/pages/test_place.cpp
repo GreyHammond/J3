@@ -29,10 +29,9 @@ std::string_view test_place::styles() {
 }
 
 void test_place::bind_data(Rml::DataModelConstructor& dmc) {
-    this->count = 2;
-    
-    dmc.Bind("count", &this->count);
-    dmc.BindEventCallback("increment_count", &test_place::increment_counter, this);
+    this->data = std::make_unique<test_place_data>();
+    dmc.Bind("count", &this->data->count);
+    dmc.BindEventCallback("increment_count", &test_place_data::increment_counter, this->data.get());
 
     this->model_handle = dmc.GetModelHandle();
 }

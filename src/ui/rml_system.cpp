@@ -104,7 +104,6 @@ Rml::ElementDocument* rml_system::init_page(page& p) const {
 }
 
 std::string_view rml_system::get_default_styles_str() {
-    // source: https://github.com/mikke89/RmlUi/blob/master/Samples/assets/rml.rcss
     return R"(
         /*
 		* Default styles for all the basic elements.

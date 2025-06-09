@@ -9,13 +9,16 @@ struct test_place {
     void bind_data(Rml::DataModelConstructor& dmc);
 
 private:
-    int count = 0;
+    struct test_place_data {
+        int count = 0;
 
-    void increment_counter(Rml::DataModelHandle handle, Rml::Event&, const Rml::VariantList&) {
-        this->count++;
-        application::get().log.debug("called");
-        handle.DirtyVariable("count");
-    }
-    
+        void increment_counter(Rml::DataModelHandle handle, Rml::Event&, const Rml::VariantList&) {
+            this->count++;
+            application::get().log.debug("called");
+            handle.DirtyVariable("count");
+        }
+    };
+
+    std::unique_ptr<test_place_data> data;
     Rml::DataModelHandle model_handle;
 };
