@@ -23,7 +23,7 @@ CPMAddPackage("gh:harfbuzz/harfbuzz#11.2.1")
 
 # define alias for freetype so RmlUi can find it
 add_library(Freetype::Freetype ALIAS freetype)
-CPMAddPackage("gh:phasephasephase/RmlUi#master")
+CPMAddPackage("gh:phasephasephase/RmlUi#dx11-backend")
 
 ### source files
 
