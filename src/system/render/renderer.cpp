@@ -2,6 +2,7 @@
 
 #include <WICTextureLoader.h>
 
+#include "component/basic/camera.hpp"
 #include "component/basic/drawable.hpp"
 #include "component/basic/transform.hpp"
 #include "component/ui/rml_container.hpp"
@@ -74,6 +75,8 @@ void renderer::resize(vector2 new_size) {
         this->swap_chain_flags
     );
 
+    this->window_size = new_size;
+
     LOG_HRESULT(error, "Resize failed", hr);
 
     this->create_render_targets();
@@ -104,6 +107,22 @@ void renderer::render_frame(entt::registry& registry) {
     
     auto& app = application::get();
 
+    matrix view_mat;
+    matrix proj_mat;
+
+    for (auto camera_view = registry.view<camera>(); auto entity : camera_view) {
+        auto& cam = camera_view.get<camera>(entity);
+
+        float aspect_ratio = this->window_size.x / this->window_size.y;
+        if (cam.get_aspect_ratio() != aspect_ratio) {
+            // recalculates projection matrix in call to camera::get_proj_matrix below
+            cam.set_aspect_ratio(aspect_ratio);
+        }
+        
+        view_mat = cam.get_view_matrix();
+        proj_mat = cam.get_proj_matrix();
+    }
+
     // entities should be sorted at this point
     auto view = registry.view<drawable, transform>();
     for (auto entity : view) {
@@ -129,16 +148,7 @@ void renderer::render_frame(entt::registry& registry) {
         
         // 3: update matrices and set constant buffers
         cb_vertex cbv = d.vs_cbuffer; // copies existing values in case they were set somewhere else
-        cbv.mat = t.get_matrix();
-
-        // this could go somewhere else if i planned to do more with it
-        static matrix projection = DirectX::XMMatrixOrthographicOffCenterLH(
-            0.0f, this->window_size.x,
-            this->window_size.y, 0.0f,
-            0.0f, 1.0f
-        );
-
-        cbv.mat *= projection;
+        cbv.mat = t.get_matrix() * view_mat * proj_mat;
         cbv.mat = DirectX::XMMatrixTranspose(cbv.mat);
 
         auto& vertex_constant_buffer = vs->get_constant_buffer();
@@ -168,8 +178,7 @@ void renderer::render_frame(entt::registry& registry) {
     }
 
     // 6??: draw UI on top of objects
-    auto rml_view = registry.view<rml_container>();
-    for (auto entity : rml_view) {
+    for (auto rml_view = registry.view<rml_container>(); auto entity : rml_view) {
         auto& c = rml_view.get<rml_container>(entity);
         c.render();
     }

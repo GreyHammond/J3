@@ -1,6 +1,7 @@
 #include "window.hpp"
 
 #include "application.hpp"
+#include "component/basic/camera.hpp"
 #include "component/basic/drawable.hpp"
 #include "component/basic/transform.hpp"
 #include "component/ui/rml_container.hpp"
@@ -55,15 +56,19 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     app.log.debug("Window created");
 
     // add and initialize systems
-    renderer& r = ecs.add_system<renderer>(handle, size); // hardware accelerated by default
+    auto& r = ecs.add_system<renderer>(handle, size); // hardware accelerated by default
     ecs.initialize();
+
+    // add camera
+    auto camera_entity = ecs.create_entity();
+    ecs.add_component<camera>(camera_entity);
 
     // create resources
     auto quad = app.resources.add<mesh>("quad", std::vector<vertex>{
-        { { -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        { { 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
-        { { -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-        { { 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
+        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+        { { 0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
+        { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
+        { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
     }, std::vector<DWORD>{
         0, 1, 2,
         2, 1, 3
@@ -85,7 +90,7 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     ecs.add_component<drawable>(entity, quad, mart);
 
     auto& tr = ecs.add_component<transform>(entity);
-    tr.set_scale({ 900, 550 });
+    tr.set_rotation({ 180, 30, 0 });
 
     app.log.debug("Window systems initialized");
 }
