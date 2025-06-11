@@ -3,7 +3,7 @@
 
 struct vertex {
     vector3 position;
-    vector4 color; // alpha unused until we figure out blending
+    vector4 color;
     vector2 uv;
 
     static D3D11_INPUT_ELEMENT_DESC* get_input_layout() {

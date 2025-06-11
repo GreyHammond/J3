@@ -27,4 +27,5 @@ private:
 
     ecs_manager ecs;
     rml_system rml;
+    entt::entity jiayi_logo_entity;
 };

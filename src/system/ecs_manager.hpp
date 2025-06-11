@@ -12,6 +12,9 @@ public:
     template <typename component_t, typename... args>
     component_t& add_component(entt::entity entity, args&&... a);
 
+    template <typename component_t>
+    component_t& get_component(entt::entity entity);
+
     template <typename system_t, typename... args>
     system_t& add_system(args&&... a);
 
@@ -23,6 +26,11 @@ private:
 template <typename component_t, typename ... args>
 component_t& ecs_manager::add_component(entt::entity entity, args&&... a) {
     return registry.emplace<component_t>(entity, std::forward<args>(a)...);
+}
+
+template <typename component_t>
+component_t& ecs_manager::get_component(const entt::entity entity) {
+    return registry.get<component_t>(entity);
 }
 
 template <typename system_t, typename ... args>

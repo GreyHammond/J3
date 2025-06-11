@@ -13,6 +13,9 @@ set(DIRECTX_ARCH x64)
 set(RMLUI_BACKEND Win32_DX11)
 set(BUILD_SHARED_LIBS OFF)
 
+# for Assimp
+set(ASSIMP_WARNINGS_AS_ERRORS OFF)
+
 ### dependencies
 
 CPMAddPackage("gh:gabime/spdlog@1.15.3")
@@ -20,6 +23,7 @@ CPMAddPackage("gh:skypjack/entt@3.15.0")
 CPMAddPackage("gh:microsoft/DirectXTK#mar2025")
 CPMAddPackage("https://gitlab.freedesktop.org/freetype/freetype.git#VER-2-13-3")
 CPMAddPackage("gh:harfbuzz/harfbuzz#11.2.1")
+CPMAddPackage("gh:assimp/assimp@6.0.2")
 
 # define alias for freetype so RmlUi can find it
 add_library(Freetype::Freetype ALIAS freetype)
@@ -102,14 +106,15 @@ add_resources(RESOURCE_OBJECTS
 ### exe
 
 add_executable(j3 WIN32 ${SOURCES} ${SHADER_OUTPUTS} ${RESOURCE_OBJECTS})
+add_compile_options("/MP $<$<CONFIG:Release>:/clang:-flto=thin /clang:-Oz>")
 
 ### includes and libraries
 
 include_directories(src)
 target_precompile_headers(j3 PRIVATE src/common.hpp)
 
-# disable unity build for DirectXTK and RmlUi
-set_property(TARGET DirectXTK rmlui_core rmlui_debugger freetype PROPERTY UNITY_BUILD FALSE)
+# disable unity build for DirectXTK, Assimp and a dependency (zlib), and RmlUi
+set_property(TARGET DirectXTK assimp zlibstatic rmlui_core rmlui_debugger freetype PROPERTY UNITY_BUILD FALSE)
 
 # RmlUi backend stuff
 set(RMLUI_BACKEND_PATH ${RmlUi_SOURCE_DIR}/Backends)
@@ -124,7 +129,7 @@ target_include_directories(rmlui_backend_WIN32_DX11 INTERFACE ${RMLUI_BACKEND_PA
 # we gotta do this until harfbuzz is officially merged
 target_include_directories(j3 PRIVATE ${RmlUi_SOURCE_DIR}/Source/Core)
 
-target_link_libraries(j3 PRIVATE spdlog::spdlog EnTT::EnTT DirectXTK RmlUi::RmlUi rmlui_backend_WIN32_DX11 harfbuzz d3d11 dxgi d3dcompiler)
+target_link_libraries(j3 PRIVATE spdlog::spdlog EnTT::EnTT DirectXTK RmlUi::RmlUi rmlui_backend_WIN32_DX11 harfbuzz assimp d3d11 dxgi d3dcompiler)
 
 target_compile_definitions(j3 PRIVATE UNICODE)
 target_compile_definitions(j3 PRIVATE WINDOW_CLASS_NAME=L"j3window")
