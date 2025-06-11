@@ -60,6 +60,8 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     auto& r = ecs.add_system<renderer>(handle, size); // hardware accelerated by default
     ecs.initialize();
 
+    this->set_background_color({ 0.058f, 0.058f, 0.058f, 1 });
+
     // add camera
     auto camera_entity = ecs.create_entity();
     ecs.add_component<camera>(camera_entity);
@@ -101,8 +103,9 @@ void window::update() {
     auto& t = ecs.get_component<transform>(jiayi_logo_entity);
     
     vector3 rotation = t.get_rotation();
-    rotation.x++;
-    rotation.y++;
+    rotation.x += 0.5f;
+    rotation.y += 0.5f;
+    rotation.z += 0.5f;
 
     t.set_rotation(rotation);
 }
@@ -126,6 +129,11 @@ void window::close() {
     std::erase_if(app.windows, [this](const std::unique_ptr<window>& window) {
         return window->handle == this->handle;
     });
+}
+
+void window::set_background_color(const vector4& color) const {
+    renderer& rend = renderer::get_for_window(this->handle);
+    rend.set_background_color(color);
 }
 
 bool window::window_proc(UINT message, WPARAM w_param, LPARAM l_param) {

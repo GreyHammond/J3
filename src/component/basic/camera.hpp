@@ -78,9 +78,9 @@ public:
     const matrix& get_view_matrix() {
         if (this->view_dirty) {
             vector3 rotation_radians = {
-                DirectX::XMConvertToRadians(rotation.x),
-                DirectX::XMConvertToRadians(rotation.y),
-                DirectX::XMConvertToRadians(rotation.z),
+                DirectX::XMConvertToRadians(this->rotation.x),
+                DirectX::XMConvertToRadians(this->rotation.y),
+                DirectX::XMConvertToRadians(this->rotation.z),
             };
             
             DirectX::XMMATRIX rot_mat = DirectX::XMMatrixRotationRollPitchYaw(rotation_radians.x, rotation_radians.y, rotation_radians.z);

@@ -35,8 +35,8 @@ void log::init(const std::filesystem::path& folder) {
     this->sped_log = std::make_shared<spdlog::logger>("j3", dup_filter);
 
 #ifdef NDEBUG
-    sped_log->set_level(spdlog::level::info);
+    this->sped_log->set_level(spdlog::level::info);
 #else // debug
-    sped_log->set_level(spdlog::level::debug);
+    this->sped_log->set_level(spdlog::level::debug);
 #endif
 }

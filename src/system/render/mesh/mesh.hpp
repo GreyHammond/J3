@@ -17,8 +17,8 @@ struct mesh {
 
     mesh(const std::vector<vertex>& vertices, const std::vector<DWORD>& indices)
         : vertices(vertices), indices(indices) {
-        vertex_buffer = std::make_unique<d3d_buffer>();
-        index_buffer = std::make_unique<d3d_buffer>();
+        this->vertex_buffer = std::make_unique<d3d_buffer>();
+        this->index_buffer = std::make_unique<d3d_buffer>();
     }
 
     mesh(const mesh& other) {
@@ -26,8 +26,8 @@ struct mesh {
         this->indices = other.indices;
 
         // buffers will be recreated on render
-        vertex_buffer = std::make_unique<d3d_buffer>();
-        index_buffer = std::make_unique<d3d_buffer>();
+        this->vertex_buffer = std::make_unique<d3d_buffer>();
+        this->index_buffer = std::make_unique<d3d_buffer>();
     }
 
     // load verts and indices from file or resource
@@ -101,7 +101,7 @@ private:
                 v.uv.y = m->mTextureCoords[0][i].y;
             }
 
-            v.color = { 1, 0, 0.882f, 1 };
+            v.color = { 0, 0, 0, 0.75f };
 
             vertices.push_back(v);
         }

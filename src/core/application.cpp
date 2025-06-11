@@ -53,7 +53,7 @@ void application::run() {
         // handle error
     }
 
-    running = true;
+    this->running = true;
 
     const auto& main_window = get_main_window();
     main_window->show();
@@ -67,15 +67,15 @@ void application::run() {
             DispatchMessage(&message);
 
             if (message.message == WM_QUIT) {
-                running = false;
+                this->running = false;
                 break;
             }
         }
 
         // perform updates during dead time
-        time.update();
+        this->time.update();
 
-        for (const auto& window : windows) {
+        for (const auto& window : this->windows) {
             window->update();
         }
     }
@@ -84,7 +84,7 @@ void application::run() {
 }
 
 void application::quit(const int exit_code) {
-    if (!running) {
+    if (!this->running) {
         this->log.warn("Exiting immediately");
         exit(exit_code);
     }

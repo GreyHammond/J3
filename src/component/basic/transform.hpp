@@ -33,7 +33,7 @@ public:
         this->dirty_matrix = true;
     }
 
-    void set_rotation(const vector3 rotation) {
+    void set_rotation(const vector3& rotation) {
         this->rotation = rotation;
         this->dirty_matrix = true;
     }
@@ -42,14 +42,14 @@ public:
     const matrix& get_matrix() {
         if (this->dirty_matrix) {
             vector3 rotation_radians = {
-                DirectX::XMConvertToRadians(rotation.x),
-                DirectX::XMConvertToRadians(rotation.y),
-                DirectX::XMConvertToRadians(rotation.z),
+                DirectX::XMConvertToRadians(this->rotation.x),
+                DirectX::XMConvertToRadians(this->rotation.y),
+                DirectX::XMConvertToRadians(this->rotation.z),
             };
             
-            this->mat = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) *
+            this->mat = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z) *
                 DirectX::XMMatrixRotationRollPitchYaw(rotation_radians.x, rotation_radians.y, rotation_radians.z) *
-                DirectX::XMMatrixTranslation(position.x, position.y, position.z);
+                DirectX::XMMatrixTranslation(this->position.x, this->position.y, this->position.z);
 
             this->dirty_matrix = false;
         }

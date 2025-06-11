@@ -5,10 +5,10 @@ struct resource {
     static resource empty() { return resource{nullptr, nullptr}; }
     resource(const char* begin, const char* end) : _begin(begin), _end(end) {}
     
-    [[nodiscard]] const char* data() const { return _begin; }
-    [[nodiscard]] const char* begin() const { return _begin; }
-    [[nodiscard]] const char* end() const { return _end; }
-    [[nodiscard]] size_t size() const { return static_cast<size_t>(_end - _begin); }
+    [[nodiscard]] const char* data() const { return this->_begin; }
+    [[nodiscard]] const char* begin() const { return this->_begin; }
+    [[nodiscard]] const char* end() const { return this->_end; }
+    [[nodiscard]] size_t size() const { return static_cast<size_t>(this->_end - this->_begin); }
     [[nodiscard]] std::string_view str() const { return std::string_view{this->data(), this->size()}; }
     [[nodiscard]] std::span<const std::byte> bytes() const {
         return {

@@ -53,10 +53,10 @@ void renderer::destroy() {
 }
 
 void renderer::set_background_color(const vector4 col) {
-    background_color[0] = col.x;
-    background_color[1] = col.y;
-    background_color[2] = col.z;
-    background_color[3] = col.w;
+    this->background_color[0] = col.x;
+    this->background_color[1] = col.y;
+    this->background_color[2] = col.z;
+    this->background_color[3] = col.w;
 }
 
 void renderer::resize(vector2 new_size) {
@@ -91,18 +91,18 @@ winrt::com_ptr<ID3D11RenderTargetView>& renderer::get_rtv() {
 }
 
 void renderer::render_frame(entt::registry& registry) {
-    this->device_context->ClearRenderTargetView(this->multisampled_render_target_view.get(), background_color.data());
+    this->device_context->ClearRenderTargetView(this->multisampled_render_target_view.get(), this->background_color.data());
     this->device_context->ClearDepthStencilView(this->multisampled_depth_stencil_view.get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    auto target_ptr = multisampled_render_target_view.get();
+    auto target_ptr = this->multisampled_render_target_view.get();
     this->device_context->OMSetRenderTargets(1, &target_ptr, this->multisampled_depth_stencil_view.get());
 
-    this->device_context->IASetInputLayout(input_layout.get());
+    this->device_context->IASetInputLayout(this->input_layout.get());
 
-    this->device_context->RSSetState(rasterizer_state.get());
+    this->device_context->RSSetState(this->rasterizer_state.get());
     this->device_context->OMSetBlendState(this->blend_state.get(), nullptr, 0xFFFFFFFF);
 
-    auto sampler = sampler_state.get();
+    auto sampler = this->sampler_state.get();
     this->device_context->PSSetSamplers(0, 1, &sampler);
     
     auto& app = application::get();
@@ -152,13 +152,13 @@ void renderer::render_frame(entt::registry& registry) {
         cbv.mat = DirectX::XMMatrixTranspose(cbv.mat);
 
         auto& vertex_constant_buffer = vs->get_constant_buffer();
-        vertex_constant_buffer.edit(device_context, &cbv, sizeof(cbv)); // is reusing the same buffer okay?
+        vertex_constant_buffer.edit(this->device_context, &cbv, sizeof(cbv)); // is reusing the same buffer okay?
 
         cb_pixel cbp = d.ps_cbuffer;
         cbp.has_color = d.tex != nullptr ? 0.0f : 1.0f;
 
         auto& pixel_constant_buffer = ps->get_constant_buffer();
-        pixel_constant_buffer.edit(device_context, &cbp, sizeof(cbp));
+        pixel_constant_buffer.edit(this->device_context, &cbp, sizeof(cbp));
         
         auto cb_ptr = vertex_constant_buffer.get().get();
         auto cbp_ptr = pixel_constant_buffer.get().get();
@@ -225,10 +225,10 @@ void renderer::create_device_and_swap_chain() {
         0, // number of feature levels, DirectX knows how many is in the default array
         D3D11_SDK_VERSION, // SDK version
         &swap_chain_desc, // swap chain description
-        swap_chain.put(), // swap chain output
-        device.put(), // device output
+        this->swap_chain.put(), // swap chain output
+        this->device.put(), // device output
         nullptr, // feature level output, not needed
-        device_context.put() // device context output
+        this->device_context.put() // device context output
     );
 
     LOG_HRESULT(critical, "Device and swap chain creation failed", hr);
@@ -290,7 +290,7 @@ void renderer::set_viewport() {
 
 void renderer::create_rasterizer() {
     CD3D11_RASTERIZER_DESC desc(D3D11_DEFAULT); // solid fill mode, cull back, front is clockwise
-    desc.CullMode = D3D11_CULL_NONE;
+    //desc.CullMode = D3D11_CULL_NONE;
     desc.MultisampleEnable = true; // oh yeah multisampling too
     
     HRESULT hr = this->device->CreateRasterizerState(&desc, this->rasterizer_state.put());

@@ -15,7 +15,7 @@ public:
 
     template<std::derived_from<cbuffer> T>
     void set_constant_buffer(const winrt::com_ptr<ID3D11Device>& device) {
-        constant_buffer.initialize<T>(device);
+        this->constant_buffer.initialize<T>(device);
     }
 
 private:
@@ -36,7 +36,7 @@ public:
 
     template<std::derived_from<cbuffer> T>
     void set_constant_buffer(const winrt::com_ptr<ID3D11Device>& device) {
-        constant_buffer.initialize<T>(device);
+        this->constant_buffer.initialize<T>(device);
     }
 
 private:
