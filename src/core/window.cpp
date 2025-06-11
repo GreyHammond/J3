@@ -1,6 +1,7 @@
 #include "window.hpp"
 
-#include "application.hpp" // avoid circular dependency
+#include "application.hpp"
+#include "component/basic/camera.hpp"
 #include "component/basic/drawable.hpp"
 #include "component/basic/transform.hpp"
 #include "component/ui/rml_container.hpp"
@@ -8,6 +9,7 @@
 #include "ui/pages/test_place.hpp"
 
 LOAD_RESOURCE(resources_textures_mart_png)
+LOAD_RESOURCE(resources_models_jiayi_logo_obj)
 
 window::window(const HINSTANCE instance, const std::wstring& title, const vector2 size, const bool main_window) {
     this->main_window = main_window;
@@ -55,19 +57,17 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     app.log.debug("Window created");
 
     // add and initialize systems
-    renderer& r = ecs.add_system<renderer>(handle, size); // hardware accelerated by default
+    auto& r = ecs.add_system<renderer>(handle, size); // hardware accelerated by default
     ecs.initialize();
 
+    // add camera
+    auto camera_entity = ecs.create_entity();
+    ecs.add_component<camera>(camera_entity);
+
     // create resources
-    auto quad = app.resources.add<mesh>("quad", std::vector<vertex>{
-        { { -0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-        { { 0.5f, -0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } },
-        { { -0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-        { { 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-    }, std::vector<DWORD>{
-        0, 1, 2,
-        2, 1, 3
-    });
+
+    std::vector<mesh> jiayi_logo_model = mesh::load(GET_RESOURCE(resources_models_jiayi_logo_obj));
+    auto jiayi_logo = app.resources.add<mesh>("jiayi_logo", jiayi_logo_model[0]);
 
     // initialize services
     rml.initialize(this->handle, size, r.get_device(), r.get_rtv());
@@ -77,15 +77,13 @@ void window::finish_create(const HINSTANCE instance, const std::wstring& title, 
     // hand rml over to ecs so the renderer can access it
     auto rml_entity = ecs.create_entity();
     ecs.add_component<rml_container>(rml_entity, rml);
-
-    auto mart = app.resources.add<texture>("mart", GET_RESOURCE(resources_textures_mart_png));
-
+    
     // test drawing entity
-    auto entity = ecs.create_entity();
-    ecs.add_component<drawable>(entity, quad, mart);
+    this->jiayi_logo_entity = ecs.create_entity();
+    ecs.add_component<drawable>(this->jiayi_logo_entity, jiayi_logo);
 
-    auto& tr = ecs.add_component<transform>(entity);
-    tr.set_scale({ 900, 550 });
+    auto& tr = ecs.add_component<transform>(this->jiayi_logo_entity);
+    tr.set_position({ 0, 0, 3 });
 
     app.log.debug("Window systems initialized");
 }
@@ -99,6 +97,14 @@ void window::show() const {
 
 void window::update() {
     ecs.update();
+
+    auto& t = ecs.get_component<transform>(jiayi_logo_entity);
+    
+    vector3 rotation = t.get_rotation();
+    rotation.x++;
+    rotation.y++;
+
+    t.set_rotation(rotation);
 }
 
 void window::close() {
@@ -126,6 +132,19 @@ bool window::window_proc(UINT message, WPARAM w_param, LPARAM l_param) {
     if (message == WM_CLOSE) {
         close();
         return true;
+    }
+
+    if (message == WM_SIZE) {
+        UINT width = LOWORD(l_param);
+        UINT height = HIWORD(l_param);
+        
+        // do you guys like back and forth conversion
+        vector2 new_size = { static_cast<float>(width), static_cast<float>(height) };
+
+        renderer& rend = renderer::get_for_window(this->handle);
+        
+        rend.resize(new_size);
+        this->rml.resize(new_size, rend.get_rtv());
     }
     
     if (this->rml.window_procedure(this->handle, message, w_param, l_param))
