@@ -6,7 +6,7 @@
 #include "mesh/mesh.hpp"
 
 struct renderer {
-    static renderer& get_for_window(const HWND handle);
+    static renderer& get_for_window(HWND handle);
 
     renderer(HWND handle, vector2 size, bool hardware_accelerated = true);
     void initialize();
