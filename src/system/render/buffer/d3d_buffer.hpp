@@ -1,6 +1,8 @@
 #pragma once
 #include "common.hpp"
+
 #include "cbuffer_types.hpp"
+#include "core/application.hpp"
 
 class d3d_buffer {
 public:

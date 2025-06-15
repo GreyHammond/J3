@@ -26,7 +26,10 @@ void service_collection::add() {
 template <std::derived_from<service> service_t>
 std::shared_ptr<service_t> service_collection::get() {
     static constexpr service_hash hash = entt::type_hash<service_t>::value();
-    return this->service_map.contains(hash) ? this->service_map[hash] : nullptr;
+    if (this->service_map.contains(hash))
+        return std::static_pointer_cast<service_t>(this->service_map[hash]);
+    
+    return nullptr;
 }
 
 template <std::derived_from<service> service_t>

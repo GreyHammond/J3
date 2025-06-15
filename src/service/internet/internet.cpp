@@ -17,7 +17,7 @@ std::wstring internet::get_string(const std::wstring& request_uri) const {
 
     winrt::Windows::Web::Http::HttpResponseMessage response_message = this->client.GetAsync(uri).get();
     if (!response_message.IsSuccessStatusCode()) {
-        app.log.error("Web request failed with code {}", response_message.StatusCode());
+        app.log.error("Web request failed with code {}", static_cast<int>(response_message.StatusCode()));
     }
     
     response_body = response_message.Content().ReadAsStringAsync().get();
