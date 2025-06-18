@@ -35,7 +35,10 @@ void rml_system::initialize(
     Rml::Initialise();
     this->context = Rml::CreateContext("main", this->window_size);
 
-    // Rml::Debugger::Initialise(this->context);
+
+#ifndef NDEBUG // debug
+    Rml::Debugger::Initialise(this->context);
+#endif
 
     const resource montserrat = GET_RESOURCE(resources_fonts_Montserrat_ttf);
     const resource montserrat_italic = GET_RESOURCE(resources_fonts_MontserratItalic_ttf);
@@ -52,13 +55,9 @@ void rml_system::initialize(
     );
 
     this->default_styles = Rml::Factory::InstanceStyleSheetString(Rml::String(this->get_default_styles_str()));
-
-    // Rml::Debugger::SetVisible(true);
 }
 
 void rml_system::update() {
-    // TODO: input
-
     this->context->Update();
     this->render_interface.SetViewport(this->window_size.x, this->window_size.y);
     this->render_interface.BeginFrame(this->render_target_view.get());
@@ -80,6 +79,12 @@ void rml_system::resize(const vector2 new_size, const winrt::com_ptr<ID3D11Rende
 bool rml_system::window_procedure(HWND window_handle, UINT message, WPARAM w_param, LPARAM l_param) {
     if (this->ime == nullptr) return false; // prevent access of null pointer after destruction
 
+#ifndef NDEBUG // debug
+    if (message == WM_KEYUP && w_param == VK_F12) {
+        Rml::Debugger::SetVisible(!Rml::Debugger::IsVisible());
+    }
+#endif
+    
     return !RmlWin32::WindowProcedure(this->context, *this->ime, window_handle, message, w_param, l_param);
 }
 
