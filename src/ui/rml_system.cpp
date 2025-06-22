@@ -403,8 +403,6 @@ std::string_view rml_system::get_default_styles_str() {
         }
 
 		input.range {
-			display: flex;
-            align-items: center;
 			width: 100%;
 			background-color: transparent;
 		}
@@ -413,25 +411,27 @@ std::string_view rml_system::get_default_styles_str() {
 			background-color: #6A1A1A;
             height: 5px;
             margin-top: 5px;
-            border-radius: 2px;
-            transition: all 0.3s quintic-out;
+            border-radius: 6px;
+            transition: height 0.3s quintic-out;
 		}
 
 		input.range sliderbar {
 			width: 16px;
 			height: 16px;
+            margin-left: -8px;
 			background-color: #CE3A3A;
 			border-radius: 8px;
 			filter: drop-shadow(#0000003F 0 4px 2px) brightness(120%) opacity(100%);
-            transition: all 0.3s quintic-out;
+            transition: filter 0.3s quintic-out;
 		}
 
         input.range sliderprogress {
             height: 7px;
             background-color: #CE3A3A;
-            border-radius: 3px;
+            border-radius: 8px;
+            z-index: 5;
 			filter: drop-shadow(#0000003F 0 4px 2px) brightness(120%);
-            transition: all 0.3s quintic-out;
+            transition: height 0.3s quintic-out;
         }
 
         input.range sliderbar:active {
