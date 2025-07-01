@@ -27,7 +27,7 @@ CPMAddPackage("gh:assimp/assimp@6.0.2")
 
 # define alias for freetype so RmlUi can find it
 add_library(Freetype::Freetype ALIAS freetype)
-CPMAddPackage("gh:phasephasephase/RmlUi#dx11-backend")
+CPMAddPackage("gh:JiayiSoftware/RmlUi#dx11-backend")
 
 ### source files
 
