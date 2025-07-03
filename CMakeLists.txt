@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.30)
 project(j3)
 
+set(CPM_SOURCE_CACHE ${PROJECT_SOURCE_DIR}/cpm-cache)
 include(cmake/CPM.cmake)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_UNITY_BUILD TRUE)
 
 # for DirectXTK
 set(DIRECTX_ARCH x64)
@@ -112,9 +112,6 @@ add_compile_options("/MP $<$<CONFIG:Release>:/clang:-flto=thin /clang:-Oz>")
 
 include_directories(src)
 target_precompile_headers(j3 PRIVATE src/common.hpp)
-
-# disable unity build for DirectXTK, Assimp and a dependency (zlib), and RmlUi
-set_property(TARGET DirectXTK assimp zlibstatic rmlui_core rmlui_debugger freetype PROPERTY UNITY_BUILD FALSE)
 
 # RmlUi backend stuff
 set(RMLUI_BACKEND_PATH ${RmlUi_SOURCE_DIR}/Backends)
