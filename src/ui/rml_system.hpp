@@ -30,7 +30,10 @@ struct rml_system {
     void hide_page();
 
 private:
-    using page_hash = std::uint32_t;
+    template <typename page_t>
+    struct storage {
+        static inline Rml::ElementDocument* document = nullptr;
+    };
 
     HWND window_handle = nullptr;
     Rml::Vector2i window_size = Rml::Vector2i();
@@ -45,7 +48,6 @@ private:
     Rml::SharedPtr<Rml::StyleSheetContainer> default_styles;
     Rml::UniquePtr<FontEngineInterfaceHarfBuzz> font_engine;
     Rml::UniquePtr<TextInputMethodEditor_Win32> ime;
-    std::unordered_map<page_hash, Rml::ElementDocument*> document_map;
 
     Rml::ElementDocument* init_page(page& p) const;
     std::string_view get_default_styles_str();
@@ -57,22 +59,19 @@ void rml_system::register_page(args&&... a) {
     auto* doc = init_page(p);
     if (doc == nullptr) return;
 
-    static constexpr page_hash hash = entt::type_hash<page_t>::value();
-    this->document_map[hash] = doc;
+    storage<page_t>::document = doc;
 }
 
 template <typename page_t>
 void rml_system::show_page() {
-    static constexpr page_hash hash = entt::type_hash<page_t>::value();
-    if (!this->document_map.contains(hash)) return;
+    if (storage<page_t>::document == nullptr) return;
 
-    this->document_map[hash]->Show();
+    storage<page_t>::document->Show();
 }
 
 template <typename page_t>
 void rml_system::hide_page() {
-    static constexpr page_hash hash = entt::type_hash<page_t>::value();
-    if (!this->document_map.contains(hash)) return;
+    if (storage<page_t>::document == nullptr) return;
 
-    this->document_map[hash]->Hide();
+    storage<page_t>::document->Hide();
 }
