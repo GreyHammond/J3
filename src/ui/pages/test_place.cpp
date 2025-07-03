@@ -39,10 +39,26 @@ std::string_view test_place::layout() {
                 </div>
             </div>
 
-            <div class="flex-column third-width">
-                <div class="flex-column half-gap">
-                    <label>Slider</label>
-                    <input type="range" min="0" max="100" step="1" orientation="horizontal"/>
+            <div class="flex-row half-gap">
+                <div class="flex-column third-width">
+                    <div class="flex-column half-gap">
+                        <label>Slider</label>
+                        <input type="range" min="0" max="100" step="1" orientation="horizontal"/>
+                    </div>
+                </div>
+
+                <div class="flex-column third-width">
+                    <div class="flex-column">
+                        <div class="flex-row half-gap">
+                            <input type="checkbox" id="check1"/>
+                            <label for="check1">Checkbox</label>
+                        </div>
+
+                        <div class="flex-row half-gap">
+                            <input type="checkbox" id="check2" checked/>
+                            <label for="check2">Toggled checkbox</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </body>
@@ -69,7 +85,7 @@ std::string_view test_place::styles() {
         }
 
         .third-width {
-            width: 33%;
+            width: 30%;
         }
     )";
 }

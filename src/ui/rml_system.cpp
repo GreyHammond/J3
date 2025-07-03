@@ -35,7 +35,6 @@ void rml_system::initialize(
     Rml::Initialise();
     this->context = Rml::CreateContext("main", this->window_size);
 
-
 #ifndef NDEBUG // debug
     Rml::Debugger::Initialise(this->context);
 #endif
@@ -394,11 +393,11 @@ std::string_view rml_system::get_default_styles_str() {
             filter: none;
         }
 
-        input.text.disabled:hover {
+        input.text[disabled]:hover {
             filter: none;
         }
 
-        input.text.disabled:active {
+        input.text[disabled]:active {
             animation: none;
         }
 
@@ -445,5 +444,41 @@ std::string_view rml_system::get_default_styles_str() {
         input.range slidertrack:active {
             height: 10px;
 		}
+
+        input.checkbox {
+            width: 16px;
+            height: 16px;
+            background-color: #FFFFFF0C;
+            border: 2px #FFFFFF1C;
+            border-radius: 4px;
+            filter: drop-shadow(#000000FF 0 4px 2px) brightness(100%);
+            transition: all 0.3s quintic-out;
+        }
+
+        input.checkbox[checked] {
+            background-color: #CE3A3A;
+            border: 2px #6A1A1A;
+            border-radius: 4px;
+            decorator: text("&#2713;");
+            filter: drop-shadow(#0000003F 0 4px 2px) brightness(100%);
+        }
+
+        input.checkbox:hover {
+			filter: drop-shadow(#000000FF 0 4px 2px) brightness(120%);
+		}
+
+        input.checkbox:active {
+            transition: none;
+            filter: drop-shadow(#000000FF 0 4px 2px) brightness(200%);
+        }
+
+        input.checkbox[checked]:hover {
+			filter: drop-shadow(#0000003F 0 4px 2px) brightness(120%);
+		}
+
+        input.checkbox[checked]:active {
+            transition: none;
+            filter: drop-shadow(#0000003F 0 4px 2px) brightness(200%);
+        }
     )";
 }
