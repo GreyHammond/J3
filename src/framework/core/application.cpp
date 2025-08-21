@@ -39,11 +39,6 @@ application::application(const HINSTANCE instance) {
     }
 
     this->log.debug("Window class registered for application");
-
-    this->services.add<
-        internet
-    >();
-
     this->log.debug("Application singleton initialized");
 }
 
@@ -94,16 +89,6 @@ void application::quit(const int exit_code) {
 
     this->log.debug("Application exit requested");
     PostQuitMessage(exit_code);
-}
-
-std::unique_ptr<window>& application::create_window(const std::wstring& title, vector2 size) {
-    this->windows.push_back(std::make_unique<window>(this->instance, title, size, this->windows.empty()));
-    return this->windows.back();
-}
-
-std::unique_ptr<window>& application::create_window(const std::wstring& title, vector2 position, vector2 size) {
-    this->windows.push_back(std::make_unique<window>(this->instance, title, position, size, this->windows.empty()));
-    return this->windows.back();
 }
 
 std::unique_ptr<window>& application::get_main_window() {

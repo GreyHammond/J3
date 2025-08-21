@@ -2,15 +2,8 @@
 
 #include "application.hpp"
 #include "framework/component/basic/camera.hpp"
-#include "framework/component/basic/drawable.hpp"
-#include "framework/component/basic/transform.hpp"
 #include "framework/component/ui/rml_container.hpp"
 #include "framework/system/render/renderer.hpp"
-#include "framework/ui/pages/global_layer/global_layer.hpp"
-#include "framework/ui/pages/test_place.hpp"
-
-LOAD_RESOURCE(resources_textures_mart_png)
-LOAD_RESOURCE(resources_models_jiayi_logo_obj)
 
 window::window(const HINSTANCE instance, const std::wstring& title, const vector2 size, const bool main_window) {
     this->main_window = main_window;
@@ -71,35 +64,16 @@ void window::finish_create(
     auto& r = this->ecs.add_system<renderer>(handle, size); // hardware accelerated by default
     this->ecs.initialize();
 
-    this->set_background_color({ 0.058f, 0.058f, 0.058f, 1 });
-
     // add camera
     auto camera_entity = this->ecs.create_entity();
     this->ecs.add_component<camera>(camera_entity);
 
-    // create resources
-
-    std::vector<mesh> jiayi_logo_model = mesh::load(GET_RESOURCE(resources_models_jiayi_logo_obj));
-    auto jiayi_logo = app.resources.add<mesh>("jiayi_logo", jiayi_logo_model[0]);
-
     // initialize services
     this->rml.initialize(this->handle, size, r.get_device(), r.get_rtv());
-    this->rml.register_page<test_place>();
-    this->rml.register_page<global_layer>();
-
-    this->rml.show_page<global_layer>();
-    this->rml.show_page<test_place>();
 
     // hand rml over to ecs so the renderer can access it
     auto rml_entity = this->ecs.create_entity();
     ecs.add_component<rml_container>(rml_entity, this->rml);
-
-    // test drawing entity
-    this->jiayi_logo_entity = this->ecs.create_entity();
-    ecs.add_component<drawable>(this->jiayi_logo_entity, jiayi_logo);
-
-    auto& tr = this->ecs.add_component<transform>(this->jiayi_logo_entity);
-    tr.set_position({ 0, 0, 3 });
 
     app.log.debug("Window systems initialized");
 }
@@ -113,15 +87,6 @@ void window::show() const {
 
 void window::update() {
     this->ecs.update();
-
-    auto& t = this->ecs.get_component<transform>(this->jiayi_logo_entity);
-
-    vector3 rotation = t.get_rotation();
-    rotation.x += 0.53f;
-    rotation.y += 0.5f;
-    rotation.z += 0.5f;
-
-    t.set_rotation(rotation);
 }
 
 void window::close() {

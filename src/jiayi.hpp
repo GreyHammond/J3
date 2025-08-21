@@ -1,5 +1,6 @@
 #pragma once
 #include "common.hpp"
+#include "j3/window/main_window.hpp"
 
 class jiayi {
 public:
