@@ -2,12 +2,12 @@
 
 #include <WICTextureLoader.h>
 
-#include "component/basic/camera.hpp"
-#include "component/basic/drawable.hpp"
-#include "component/basic/transform.hpp"
-#include "component/ui/rml_container.hpp"
+#include "framework/component/basic/camera.hpp"
+#include "framework/component/basic/drawable.hpp"
+#include "framework/component/basic/transform.hpp"
+#include "framework/component/ui/rml_container.hpp"
+#include "framework/resource/resource.hpp"
 #include "mesh/vertex.hpp"
-#include "resource/resource.hpp"
 
 LOAD_RESOURCE(obj_vertex_vs_cso)
 LOAD_RESOURCE(obj_pixel_ps_cso)

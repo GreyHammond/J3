@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
 
-#include "system/render/buffer/d3d_buffer.hpp"
+#include "framework/system/render/buffer/d3d_buffer.hpp"
 #include "vertex.hpp"
 
 #include <assimp/Importer.hpp>

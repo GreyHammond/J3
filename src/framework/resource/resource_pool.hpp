@@ -1,5 +1,5 @@
 #pragma once
-#include "../common.hpp"
+#include "common.hpp"
 
 // template should have a constructor, else it will not work
 template <typename T>

@@ -2,8 +2,8 @@
 
 #include <RmlUi/Debugger/Debugger.h>
 
-#include "core/application.hpp"
-#include "resource/resource.hpp"
+#include "framework/core/application.hpp"
+#include "framework/resource/resource.hpp"
 
 LOAD_RESOURCE(resources_fonts_Montserrat_ttf)
 LOAD_RESOURCE(resources_fonts_MontserratItalic_ttf)

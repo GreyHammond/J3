@@ -1,6 +1,6 @@
 #pragma once
 #include "common.hpp"
-#include "core/application.hpp"
+#include "framework/core/application.hpp"
 
 struct test_place {
     std::string_view id();

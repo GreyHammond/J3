@@ -1,7 +1,7 @@
 #include "application.hpp"
 
+#include "framework/service/internet/internet.hpp"
 #include "special_folder.hpp"
-#include "service/internet/internet.hpp"
 
 alignas(application) char application_buffer[sizeof(application)];
 

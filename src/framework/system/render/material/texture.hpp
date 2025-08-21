@@ -1,6 +1,6 @@
 #pragma once
 #include "common.hpp"
-#include "resource/resource.hpp"
+#include "framework/resource/resource.hpp"
 
 struct texture {
     std::wstring path;

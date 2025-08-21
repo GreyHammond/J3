@@ -1,8 +1,8 @@
 #pragma once
 #include "common.hpp"
 
-#include "resource/resource.hpp"
-#include "system/render/buffer/d3d_buffer.hpp"
+#include "framework/resource/resource.hpp"
+#include "framework/system/render/buffer/d3d_buffer.hpp"
 
 class vertex_shader {
 public:

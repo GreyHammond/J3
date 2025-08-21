@@ -1,5 +1,5 @@
 #include "jiayi.hpp"
-#include "core/application.hpp"
+#include "framework/core/application.hpp"
 
 alignas(jiayi) char jiayi_buffer[sizeof(jiayi)];
 

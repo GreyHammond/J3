@@ -1,11 +1,11 @@
 #pragma once
 #include "common.hpp"
 
+#include "framework/resource/resource_manager.hpp"
+#include "framework/service/service_collection.hpp"
 #include "log.hpp"
 #include "timer.hpp"
 #include "window.hpp"
-#include "resource/resource_manager.hpp"
-#include "service/service_collection.hpp"
 
 class application {
 public:

@@ -1,6 +1,6 @@
 #include "internet.hpp"
 
-#include "core/application.hpp"
+#include "framework/core/application.hpp"
 
 std::wstring internet::get_string(const std::wstring& request_uri) const {
     auto& app = application::get();

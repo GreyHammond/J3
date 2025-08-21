@@ -1,8 +1,8 @@
 #pragma once
 #include "common.hpp"
 
-#include "system/ecs_manager.hpp"
-#include "ui/rml_system.hpp"
+#include "framework/system/ecs_manager.hpp"
+#include "framework/ui/rml_system.hpp"
 
 class window {
 public:

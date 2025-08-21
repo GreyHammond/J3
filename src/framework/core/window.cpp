@@ -1,13 +1,13 @@
 #include "window.hpp"
 
 #include "application.hpp"
-#include "component/basic/camera.hpp"
-#include "component/basic/drawable.hpp"
-#include "component/basic/transform.hpp"
-#include "component/ui/rml_container.hpp"
-#include "system/render/renderer.hpp"
-#include "ui/pages/global_layer/global_layer.hpp"
-#include "ui/pages/test_place.hpp"
+#include "framework/component/basic/camera.hpp"
+#include "framework/component/basic/drawable.hpp"
+#include "framework/component/basic/transform.hpp"
+#include "framework/component/ui/rml_container.hpp"
+#include "framework/system/render/renderer.hpp"
+#include "framework/ui/pages/global_layer/global_layer.hpp"
+#include "framework/ui/pages/test_place.hpp"
 
 LOAD_RESOURCE(resources_textures_mart_png)
 LOAD_RESOURCE(resources_models_jiayi_logo_obj)

@@ -1,9 +1,9 @@
 #pragma once
 #include "common.hpp"
 
-#include "system/render/material/texture.hpp"
-#include "system/render/mesh/mesh.hpp"
-#include "system/render/shader/shader.hpp"
+#include "framework/system/render/material/texture.hpp"
+#include "framework/system/render/mesh/mesh.hpp"
+#include "framework/system/render/shader/shader.hpp"
 
 struct drawable {
     std::shared_ptr<mesh> mesh;
