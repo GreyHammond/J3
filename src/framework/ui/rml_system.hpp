@@ -1,13 +1,15 @@
 #pragma once
 #include "common.hpp"
 
+#include "framework/resource/resource.hpp"
 #include "font/FontEngineInterfaceHarfBuzz.h"
-#include "page.hpp"
 
 // no MSAA for RmlUi, we do this ourselves already
 #define NUM_MSAA_SAMPLES 1
 #include <RmlUi_Platform_Win32.h>
 #include <RmlUi_Renderer_DX11.h>
+
+LOAD_RESOURCE(resources_ui_css_default_css)
 
 struct rml_system {
     void initialize(
@@ -20,8 +22,8 @@ struct rml_system {
     void resize(vector2 new_size, const winrt::com_ptr<ID3D11RenderTargetView>& rtv);
     bool window_procedure(HWND window_handle, UINT message, WPARAM w_param, LPARAM l_param);
 
-    template <typename page_t, typename... args>
-    void register_page(args&&... a);
+    template <typename page_t>
+    void register_page();
 
     template <typename page_t>
     void show_page();
@@ -32,6 +34,7 @@ struct rml_system {
 private:
     template <typename page_t>
     struct storage {
+        static inline page_t page;
         static inline Rml::ElementDocument* document = nullptr;
     };
 
@@ -48,18 +51,26 @@ private:
     Rml::SharedPtr<Rml::StyleSheetContainer> default_styles;
     Rml::UniquePtr<FontEngineInterfaceHarfBuzz> font_engine;
     Rml::UniquePtr<TextInputMethodEditor_Win32> ime;
-
-    Rml::ElementDocument* init_page(page& p) const;
-    std::string_view get_default_styles_str();
 };
 
-template <typename page_t, typename... args>
-void rml_system::register_page(args&&... a) {
-    page p{ page_t(std::forward<args>(a)...) };
-    auto* doc = init_page(p);
-    if (doc == nullptr) return;
+template <typename page_t>
+void rml_system::register_page() {
+    new (&storage<page_t>::page) page_t();
+    
+    Rml::DataModelConstructor dmc = this->context->CreateDataModel(Rml::String(page_t::name.c_str()) + "_data");
+    storage<page_t>::page.initialize(dmc);
 
-    storage<page_t>::document = doc;
+    Rml::ElementDocument* document = this->context->LoadDocumentFromMemory(Rml::String(page_t::rml().str()), page_t::name.c_str());
+    if (!document) return;
+
+    const Rml::SharedPtr<Rml::StyleSheetContainer> custom_styles =
+        Rml::Factory::InstanceStyleSheetString(Rml::String(page_t::css().str()));
+    const Rml::SharedPtr<Rml::StyleSheetContainer> combined_styles =
+        this->default_styles->CombineStyleSheetContainer(*custom_styles);
+    document->SetStyleSheetContainer(combined_styles);
+
+    storage<page_t>::document = document;
+    storage<page_t>::page.after_load();
 }
 
 template <typename page_t>

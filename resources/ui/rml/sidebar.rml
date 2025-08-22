@@ -1,0 +1,14 @@
+<rml>
+    <head>
+        <title>J3 sidebar</title>
+    </head>
+    <body>
+    <div>
+        <h1>J3</h1>
+
+        <label>
+            <input type="radio"/>
+        </label>
+    </div>
+    </body>
+</rml>

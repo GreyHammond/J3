@@ -3,6 +3,7 @@
 #include "framework/component/basic/drawable.hpp"
 #include "framework/component/basic/transform.hpp"
 #include "framework/system/render/renderer.hpp"
+#include "j3/view/sidebar.hpp"
 
 LOAD_RESOURCE(resources_models_jiayi_logo_obj)
 
@@ -22,7 +23,11 @@ main_window::main_window(HINSTANCE instance, const std::wstring& title, vector2 
 
     auto& tr = this->ecs.add_component<transform>(this->jiayi_logo_entity);
     tr.set_position({ 0, 0, 3 });
+
+    this->rml.register_page<sidebar>();
+    this->rml.show_page<sidebar>();
 }
+
 void main_window::update() {
     window::update(); // allow ECS to update
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 
+// TODO: remove this fuckass class
 class log {
     std::shared_ptr<spdlog::logger> sped_log;
     

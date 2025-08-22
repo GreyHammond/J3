@@ -24,6 +24,7 @@ CPMAddPackage("gh:microsoft/DirectXTK#mar2025")
 CPMAddPackage("https://gitlab.freedesktop.org/freetype/freetype.git#VER-2-13-3")
 CPMAddPackage("gh:harfbuzz/harfbuzz#11.2.1")
 CPMAddPackage("gh:assimp/assimp@6.0.2")
+CPMAddPackage("gh:BasedInc/libhat#fbe02c7b192f0fe9bfb89690811790cb64404137")
 
 # define alias for freetype so RmlUi can find it
 add_library(Freetype::Freetype ALIAS freetype)
@@ -126,7 +127,7 @@ target_include_directories(rmlui_backend_WIN32_DX11 INTERFACE ${RMLUI_BACKEND_PA
 # we gotta do this until harfbuzz is officially merged
 target_include_directories(j3 PRIVATE ${RmlUi_SOURCE_DIR}/Source/Core)
 
-target_link_libraries(j3 PRIVATE spdlog::spdlog EnTT::EnTT DirectXTK RmlUi::RmlUi rmlui_backend_WIN32_DX11 harfbuzz assimp d3d11 dxgi d3dcompiler dwmapi)
+target_link_libraries(j3 PRIVATE spdlog::spdlog EnTT::EnTT DirectXTK RmlUi::RmlUi rmlui_backend_WIN32_DX11 harfbuzz assimp libhat d3d11 dxgi d3dcompiler dwmapi)
 
 target_compile_definitions(j3 PRIVATE UNICODE)
 target_compile_definitions(j3 PRIVATE WINDOW_CLASS_NAME=L"j3window")

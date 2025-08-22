@@ -28,6 +28,7 @@
 
 // libraries
 #include <entt/entt.hpp>
+#include <libhat.hpp>
 #include <spdlog/spdlog.h>
 #include <DirectXMath.h>
 #include <RmlUi/Core.h>

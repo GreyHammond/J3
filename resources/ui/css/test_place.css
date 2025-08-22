@@ -1,0 +1,19 @@
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.half-gap {
+    gap: 7px;
+}
+
+.third-width {
+    width: 30%;
+}
