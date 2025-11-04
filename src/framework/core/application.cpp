@@ -8,15 +8,15 @@ alignas(application) char application_buffer[sizeof(application)];
 application::application(const HINSTANCE instance) {
     const std::filesystem::path log_folder = special_folder::get(FOLDERID_LocalAppData) / "J3" / "Logs";
     this->log.init(log_folder);
-    
+
     this->instance = instance;
     this->log.info("Application start");
 
     winrt::init_apartment();
     this->log.debug("Initialized WinRT apartment");
-    
+
     // get icon because i don't want to load one from a file
-    std::array<wchar_t, MAX_PATH> module_path = { };
+    std::array<wchar_t, MAX_PATH> module_path = {};
     GetModuleFileName(this->instance, module_path.data(), MAX_PATH);
     HICON icon = ExtractIcon(this->instance, module_path.data(), 0);
 
@@ -42,9 +42,7 @@ application::application(const HINSTANCE instance) {
     this->log.debug("Application singleton initialized");
 }
 
-application& application::get() {
-    return *std::launder(reinterpret_cast<application*>(application_buffer));
-}
+application& application::get() { return *std::launder(reinterpret_cast<application*>(application_buffer)); }
 
 void application::run() {
     if (this->windows.empty()) {
@@ -58,9 +56,12 @@ void application::run() {
 
     // window loop
     this->log.info("Now running");
-    MSG message = { };
+    MSG message = {};
     while (running) {
-        bool has_message = get_message(message, static_cast<UINT>(Rml::Math::Min(Rml::GetContext("main")->GetNextUpdateDelay(), 10.0)));
+        bool has_message = get_message(
+            message, static_cast<UINT>(Rml::Math::Min(Rml::GetContext("main")->GetNextUpdateDelay(), 10.0))
+        );
+
         while (has_message) {
             TranslateMessage(&message);
             DispatchMessage(&message);
@@ -121,6 +122,6 @@ bool application::get_message(MSG& message, UINT timeout) {
 
         if (message.message != WM_TIMER || message.hwnd != nullptr || message.wParam != timer_id) return result;
     }
-    
+
     return PeekMessage(&message, nullptr, 0, 0, PM_REMOVE);
 }
