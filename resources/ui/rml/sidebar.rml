@@ -3,14 +3,32 @@
         <title>J3 sidebar</title>
     </head>
     <body>
-    <div>
+    <div class="sidebar">
         <h1>J3</h1>
 
-        <label>
-            <input type="radio"/>
-        </label>
+        <form class="sidebar-main">
+            <label class="sidebar-item">
+                <input type="radio" id="sidebar-home"/> Home
+            </label>
 
-        <img src="mart.png"/>
+            <label class="sidebar-item">
+                <input type="radio" id="sidebar-mods"/> Mods
+            </label>
+
+            <label class="sidebar-item">
+                <input type="radio" id="sidebar-archives"/> Archives
+            </label>
+
+            <label class="sidebar-item">
+                <input type="radio" id="sidebar-versions"/> Versions
+            </label>
+
+            <div class="flexible-space"/>
+
+            <label class="sidebar-item">
+                <input type="radio" id="sidebar-settings"/> Settings
+            </label>
+        </form>
     </div>
     </body>
 </rml>
