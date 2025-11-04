@@ -60,7 +60,8 @@ void application::run() {
     this->log.info("Now running");
     MSG message = { };
     while (running) {
-        while (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE)) {
+        bool has_message = get_message(message, static_cast<UINT>(Rml::Math::Min(Rml::GetContext("main")->GetNextUpdateDelay(), 10.0)));
+        while (has_message) {
             TranslateMessage(&message);
             DispatchMessage(&message);
 
@@ -68,6 +69,8 @@ void application::run() {
                 this->running = false;
                 break;
             }
+
+            has_message = get_message(message, 0);
         }
 
         // perform updates during dead time
@@ -108,4 +111,16 @@ LRESULT application::window_proc(HWND handle, UINT message, WPARAM w_param, LPAR
     }
 
     return (*window_it)->window_proc(message, w_param, l_param) ? 0 : DefWindowProc(handle, message, w_param, l_param);
+}
+
+bool application::get_message(MSG& message, UINT timeout) {
+    if (timeout != 0) {
+        UINT_PTR timer_id = SetTimer(nullptr, 0, timeout, nullptr);
+        BOOL result = GetMessage(&message, nullptr, 0, 0);
+        KillTimer(nullptr, timer_id);
+
+        if (message.message != WM_TIMER || message.hwnd != nullptr || message.wParam != timer_id) return result;
+    }
+    
+    return PeekMessage(&message, nullptr, 0, 0, PM_REMOVE);
 }

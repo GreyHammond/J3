@@ -39,6 +39,7 @@ private:
     bool running = false;
     
     static LRESULT CALLBACK window_proc(HWND handle, UINT message, WPARAM w_param, LPARAM l_param);
+    bool get_message(MSG& message, UINT timeout);
 };
 
 template <std::derived_from<service> service_t>

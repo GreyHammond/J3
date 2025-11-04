@@ -80,7 +80,8 @@ void window::finish_create(
 
 void window::show() const {
     ShowWindow(this->handle, SW_SHOW);
-    UpdateWindow(this->handle);
+    SetForegroundWindow(this->handle);
+    SetFocus(this->handle);
 
     application::get().log.debug("Window shown");
 }
@@ -129,7 +130,18 @@ bool window::window_proc(UINT message, WPARAM w_param, LPARAM l_param) {
         vector2 new_size = { static_cast<float>(width), static_cast<float>(height) };
 
         renderer& rend = renderer::get_for_window(this->handle);
+        rend.resize(new_size);
+        this->rml.resize(new_size, rend.get_rtv());
+    }
 
+    if (message == WM_SIZING) {
+        auto rect = reinterpret_cast<RECT*>(l_param);
+        UINT width = rect->right - rect->left;
+        UINT height = rect->bottom - rect->top;
+
+        vector2 new_size = { static_cast<float>(width), static_cast<float>(height) };
+
+        renderer& rend = renderer::get_for_window(this->handle);
         rend.resize(new_size);
         this->rml.resize(new_size, rend.get_rtv());
     }
