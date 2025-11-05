@@ -4,29 +4,30 @@
         <link type="text/rcss" href="../css/default.rcss"/>
         <link type="text/rcss" href="../css/sidebar.rcss"/>
     </head>
-    <body>
+
+    <body data-model="sidebar_data">
     <div class="sidebar">
         <h1>J3</h1>
-
+    
         <form class="sidebar-main">
-            <label class="sidebar-item">
-                <input type="radio" id="sidebar-home"/> Home
+            <label class="sidebar-item" data-class-selected="home_selected">
+                <input type="radio" id="sidebar-home" data-value="home_selected" checked/> Home
             </label>
 
-            <label class="sidebar-item">
-                <input type="radio" id="sidebar-mods"/> Mods
+            <label class="sidebar-item" data-class-selected="mods_selected">
+                <input type="radio" id="sidebar-mods" data-value="mods_selected"/> Mods
             </label>
 
-            <label class="sidebar-item">
-                <input type="radio" id="sidebar-archives"/> Archives
+            <label class="sidebar-item" data-class-selected="archives_selected">
+                <input type="radio" id="sidebar-archives" data-value="archives_selected"/> Archives
             </label>
 
-            <label class="sidebar-item">
-                <input type="radio" id="sidebar-versions"/> Versions
+            <label class="sidebar-item" data-class-selected="versions_selected">
+                <input type="radio" id="sidebar-versions" data-value="versions_selected"/> Versions
             </label>
 
-            <label class="sidebar-item">
-                <input type="radio" id="sidebar-settings"/> Settings
+            <label class="sidebar-item" data-class-selected="settings_selected">
+                <input type="radio" id="sidebar-settings" data-value="settings_selected"/> Settings
             </label>
         </form>
     </div>
