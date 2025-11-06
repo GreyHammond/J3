@@ -347,7 +347,7 @@ input.checkbox[checked] {
     background-color: #CE3A3A;
     border: 2px #6A1A1A;
     border-radius: 4px;
-    decorator: text("&#2713;");
+    decorator: image("../../textures/check.png" scale-none);
     filter: drop-shadow(#0000003F 0 4px 2px) brightness(100%);
 }
 
