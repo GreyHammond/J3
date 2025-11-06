@@ -37,14 +37,19 @@
     </div>
 
     <div class="flex-row half-gap">
-        <div class="flex-column third-width">
+        <div class="flex-column">
             <div class="flex-column half-gap">
                 <label>Slider</label>
-                <input type="range" min="0" max="100" step="1" orientation="horizontal"/>
+                <input type="range" min="0" max="100" step="1" value="50" orientation="horizontal"/>
+            </div>
+
+            <div class="flex-column half-gap">
+                <label>Disabled slider</label>
+                <input disabled type="range" min="0" max="100" step="1" value="50" orientation="horizontal"/>
             </div>
         </div>
 
-        <div class="flex-column third-width">
+        <div class="flex-column">
             <div class="flex-column">
                 <div class="flex-row half-gap">
                     <input type="checkbox" id="check1"/>

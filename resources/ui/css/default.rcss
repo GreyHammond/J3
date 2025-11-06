@@ -290,47 +290,69 @@ input.text[disabled]:active {
 }
 
 input.range {
-    width: 100%;
+    width: 250px;
     background-color: transparent;
+    cursor: pointer;
 }
 
 input.range slidertrack {
     background-color: #6A1A1A;
     height: 5px;
     margin-top: 5px;
+    transform-origin-x: left;
     border-radius: 6px;
-    transition: height 0.3s quintic-out;
+    transition: all 0.3s quintic-out;
 }
 
 input.range sliderbar {
     width: 16px;
     height: 16px;
-    margin-left: -8px;
     background-color: #CE3A3A;
     border-radius: 8px;
     filter: drop-shadow(#0000003F 0 4px 2px) brightness(120%) opacity(100%);
-    transition: filter 0.3s quintic-out;
+    transition: all 0.3s quintic-out;
 }
 
 input.range sliderprogress {
     height: 7px;
     background-color: #CE3A3A;
     border-radius: 8px;
-    z-index: 5;
+    transform: scaleX(1.06) translateY(-1px);
+    transform-origin-x: left;
     filter: drop-shadow(#0000003F 0 4px 2px) brightness(120%);
-    transition: height 0.3s quintic-out;
+    transition: all 0.3s quintic-out;
 }
 
-input.range sliderbar:active {
+input.range:active sliderbar {
     filter: drop-shadow(#0000003F 0 4px 2px) brightness(120%) opacity(0%);
 }
 
-input.range sliderprogress:active {
-    height: 16px;
+input.range:active slidertrack {
+    transform: scaleY(2);
 }
 
-input.range slidertrack:active {
-    height: 10px;
+input.range[disabled] {
+    cursor: unavailable;
+}
+
+input.range[disabled] slidertrack {
+    background-color: #FFFFFF0D;
+}
+
+input.range[disabled] sliderbar {
+    background-color: #6C6C6C;
+}
+
+input.range[disabled] sliderprogress {
+    background-color: #6C6C6C;
+}
+
+input.range:active[disabled] sliderbar {
+    filter: none;
+}
+
+input.range:active[disabled] slidertrack {
+    transform: none;
 }
 
 input.checkbox {
@@ -339,6 +361,7 @@ input.checkbox {
     background-color: #FFFFFF0C;
     border: 2px #FFFFFF1C;
     border-radius: 4px;
+    cursor: pointer;
     filter: drop-shadow(#000000FF 0 4px 2px) brightness(100%);
     transition: all 0.3s quintic-out;
 }
