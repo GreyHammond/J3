@@ -8,8 +8,6 @@
 #include <RmlUi/Core/Input.h>
 #include <RmlUi_Platform_Win32.h>
 
-LOAD_RESOURCE(resources_ui_css_default_css)
-
 struct rml_system {
     void initialize(
         HWND handle, vector2 size, const winrt::com_ptr<ID3D11Device>& device,
