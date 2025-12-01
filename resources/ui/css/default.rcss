@@ -1,4 +1,4 @@
-/* J3's default stylesheet, embedded straight into the binary! */
+/* J3's default stylesheet, used in all pages */
 
 * {
     font-family: Montserrat;
