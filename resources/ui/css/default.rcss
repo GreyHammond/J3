@@ -480,7 +480,7 @@ input.radio[checked]:active {
 
 .drop-down .drop-down-items[open="1"] {
     transform: translateY(0px);
-    opacity: 100%;
+    opacity: 1;
     visibility: visible;
 }
 
@@ -500,6 +500,7 @@ input.radio[checked]:active {
     width: 32px;
     height: 32px;
     image-color: #0000007F;
+    border: 2px #0000007F;
     decorator: image("../../textures/pipette.png" scale-none);
 }
 
@@ -516,7 +517,7 @@ input.radio[checked]:active {
 
 .color-picker-popover[open="1"] {
     transform: translateX(0px);
-    opacity: 100%;
+    opacity: 1;
     visibility: visible;
 }
 
@@ -543,6 +544,10 @@ input.radio[checked]:active {
     transform: translateY(-1px);
     background-color: #0000007F;
     border: 2px #FFFFFF;
+}
+
+.color-picker-popover input.range sliderbar:active {
+    transform: scale(1.2);
 }
 
 .color-picker-popover input.range slidertrack {
@@ -578,7 +583,7 @@ input.radio[checked]:active {
     width: 14px;
     height: 14px;
     border-radius: 8px;
-    background-color: #CE3A3A;
+    background-color: #0000007F;
     border: 2px #FFFFFF;
     cursor: move;
     transition: all 0.3s quintic-out;
@@ -586,5 +591,4 @@ input.radio[checked]:active {
 
 .color-picker-zone handle:active {
     transform: scale(1.2);
-    background-color: #0000007F;
 }

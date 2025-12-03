@@ -24,6 +24,16 @@ void test_place_controller::bind_data(Rml::DataModelConstructor& dmc) {
     dmc.BindEventCallback("drop_down_toggle", &test_place_controller::toggle_drop_down_item, this);
 
     dmc.Bind("color_picker_open", &this->model.color_picker_open);
+
+    // color will be represented as HSL/HSV
+    if (auto vector_handle = dmc.RegisterStruct<vector4>()) {
+        vector_handle.RegisterMember("hue", &vector4::x);
+        vector_handle.RegisterMember("saturation", &vector4::y);
+        vector_handle.RegisterMember("value", &vector4::z);
+        vector_handle.RegisterMember("alpha", &vector4::w);
+    }
+    
+    dmc.Bind("color_picker_color", &this->model.color_picker_color);
     
     this->handle = dmc.GetModelHandle();
 }

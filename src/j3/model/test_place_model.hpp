@@ -10,4 +10,5 @@ struct test_place_model {
     bool drop_down_open{ false };
 
     bool color_picker_open{ false };
+    vector4 color_picker_color{ 0, 100, 50, 1 };
 };
