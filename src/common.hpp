@@ -25,6 +25,7 @@
 #include <mutex>
 #include <array>
 #include <filesystem>
+#include <regex>
 
 // libraries
 #include <DirectXMath.h>

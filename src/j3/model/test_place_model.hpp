@@ -11,4 +11,5 @@ struct test_place_model {
 
     bool color_picker_open{ false };
     vector4 color_picker_color{ 0, 100, 50, 1 };
+    Rml::String color_picker_hex{ "#FF0000FF" };
 };

@@ -137,4 +137,5 @@ include_directories(${RMLUI_HARFBUZZ_PATH})
 target_link_libraries(j3 PRIVATE spdlog::spdlog EnTT::EnTT DirectXTK RmlUi::RmlUi rmlui_backend_WIN32_DX11 rmlui_font_engine_harfbuzz harfbuzz assimp libhat d3d11 dxgi d3dcompiler dwmapi)
 
 target_compile_definitions(j3 PRIVATE UNICODE)
+target_compile_definitions(j3 PRIVATE NOMINMAX)
 target_compile_definitions(j3 PRIVATE WINDOW_CLASS_NAME=L"j3window")
