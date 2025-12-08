@@ -242,7 +242,7 @@ button[disabled]:hover {
 }
 
 button[disabled]:active {
-    animation: none;
+    transition: none;
 }
 
 button.progress {
@@ -256,6 +256,14 @@ button.progress div {
     top: 0;
     width: 50%;
     height: 100%;
+}
+
+button.progress:hover {
+    filter: none;
+}
+
+button.progress:active {
+    transition: none;
 }
 
 input.text {
@@ -295,7 +303,7 @@ input.text[disabled]:hover {
 }
 
 input.text[disabled]:active {
-    animation: none;
+    transition: none;
 }
 
 input.range {
