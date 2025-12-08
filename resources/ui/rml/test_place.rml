@@ -16,7 +16,10 @@
         <button>Regular button</button>
         <button class="less">Less important</button>
         <button disabled>Disabled button</button>
-        <button class="progress">With progress</button>
+        <button class="progress">
+            <div/>
+            With progress
+        </button>
     </div>
 
     <div class="flex-row">

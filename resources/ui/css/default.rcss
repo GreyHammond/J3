@@ -249,6 +249,15 @@ button.progress {
     cursor: wait;
 }
 
+button.progress div {
+    background-color: #FFFFFF30;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+}
+
 input.text {
     background-color: #FFFFFF0C;
     border: 2px #FFFFFF1C;
