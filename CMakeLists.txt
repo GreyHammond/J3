@@ -18,11 +18,11 @@ set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 
 ### dependencies
 
-CPMAddPackage("gh:gabime/spdlog@1.16.0")
+CPMAddPackage("gh:gabime/spdlog@1.17.0")
 CPMAddPackage("gh:skypjack/entt@3.16.0")
 CPMAddPackage("gh:microsoft/DirectXTK#oct2025")
-CPMAddPackage("https://gitlab.freedesktop.org/freetype/freetype.git#VER-2-14-1")
-CPMAddPackage("gh:harfbuzz/harfbuzz#12.2.0")
+CPMAddPackage("https://gitlab.freedesktop.org/freetype/freetype.git#VER-2-14-3")
+CPMAddPackage("gh:harfbuzz/harfbuzz#13.2.1")
 CPMAddPackage("gh:assimp/assimp@6.0.2")
 CPMAddPackage("gh:BasedInc/libhat@0.9.0")
 
