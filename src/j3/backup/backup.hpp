@@ -7,6 +7,7 @@ struct backup {
         int worlds;
         int resource_packs;
         int behavior_packs;
+        bool average; // in the case of GDK versions, which split game data per Xbox account
     };
     
     std::string name;

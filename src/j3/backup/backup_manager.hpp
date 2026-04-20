@@ -3,7 +3,6 @@
 #include "backup.hpp"
 
 class backup_manager {
-    backup_collection collection;
 public:
     std::filesystem::path current_path;
     
@@ -13,5 +12,11 @@ public:
     
     backup_collection& get_backups();
     void create_backup(const std::string& name, const minecraft_version& for_version);
+    void rename_backup(const std::string& name, const std::string& new_name);
     void remove_backup(const std::string& name);
+    
+private:
+    backup_collection collection;
+    
+    struct backup::contents count_backup_contents(const std::filesystem::path& path);
 };
