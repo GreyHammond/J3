@@ -25,7 +25,7 @@
     <div class="flex-row">
         <div class="flex-column half-gap">
             <label>Text field</label>
-            <input type="text"/>
+            <input type="text" placeholder="Placeholder"/>
         </div>
 
         <div class="flex-column half-gap">
