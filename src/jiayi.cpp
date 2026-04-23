@@ -1,6 +1,5 @@
 #include "jiayi.hpp"
 #include "framework/core/application.hpp"
-#include "framework/service/internet/internet.hpp"
 
 alignas(jiayi) char jiayi_buffer[sizeof(jiayi)];
 
@@ -8,8 +7,6 @@ jiayi::jiayi(const HINSTANCE instance, const std::wstring& command_line) {
     new(application_buffer) application(instance);
 
     auto& app = application::get();
-    app.services.add<internet>();
-
     app.create_window<main_window>(L"J3", { 900, 550 });
     app.run();
 }

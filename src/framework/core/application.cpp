@@ -1,6 +1,5 @@
 #include "application.hpp"
 
-#include "framework/service/internet/internet.hpp"
 #include "special_folder.hpp"
 
 #include <spdlog/sinks/basic_file_sink.h>
