@@ -8,15 +8,17 @@ void worker::run() {
     this->running = true;
     
     this->thread = std::thread([&] {
-        task t;
         while (this->running) {
-            this->task_queue.wait_dequeue(t);
-            t.work(t);
+            if (!this->task_queue.wait_dequeue_timed(this->current_task, std::chrono::milliseconds{ 5 })) continue;
             
+            spdlog::debug("Task assigned: {}", this->current_task.name);
+            this->current_task.work(this->current_task);
+            spdlog::debug("Task completed: {}", this->current_task.name);
         }
-    })
+    });
 }
 
 worker::~worker() {
-    
+    this->running = false;
+    this->thread.join();
 }

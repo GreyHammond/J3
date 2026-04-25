@@ -72,12 +72,16 @@ application::application(const HINSTANCE instance) {
 
     ATOM atom = RegisterClassEx(&window_class);
     if (atom == 0) {
-        spdlog::critical("Registering window class failed with result 0x{:08X}", GetLastError());
+        spdlog::critical("Registering window class failed with result 0x{:08X}, exiting", GetLastError());
         this->quit(-1);
         return;
     }
 
     spdlog::debug("Window class registered for application");
+    
+    // allocate some workers
+    this->workers.allocate(5);
+    
     spdlog::debug("Application singleton initialized");
 }
 
@@ -85,16 +89,19 @@ application& application::get() { return *std::launder(reinterpret_cast<applicat
 
 void application::run() {
     if (this->windows.empty()) {
-        // handle error
+        spdlog::critical("Application cannot run with no windows, exiting");
+        this->quit(-1);
     }
 
     this->running = true;
+    this->workers.run();
 
     const auto& main_window = get_main_window();
     main_window->show();
 
     // window loop
     spdlog::info("Now running");
+    
     MSG message = {};
     while (running) {
         bool has_message = get_message(
@@ -121,6 +128,8 @@ void application::run() {
             window->update();
         }
     }
+    
+    this->workers.destroy();
 
     spdlog::info("Application end");
 }

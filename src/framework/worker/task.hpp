@@ -4,6 +4,6 @@
 class task {
 public:
     std::string name{ "Unknown" };
-    std::function<void(task)> work{ nullptr };
-    std::atomic<float> progress{ 0 };
+    std::function<void(task&)> work{ nullptr };
+    volatile float progress{ 0 };
 };

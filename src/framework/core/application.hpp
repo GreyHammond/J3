@@ -2,6 +2,7 @@
 #include "common.hpp"
 
 #include "framework/resource/resource_manager.hpp"
+#include "framework/worker/worker_pool.hpp"
 #include "timer.hpp"
 #include "window.hpp"
 
@@ -10,6 +11,7 @@ public:
     timer time;
     std::vector<std::unique_ptr<window>> windows;
     resource_manager resources;
+    worker_pool workers;
     
     explicit application(HINSTANCE instance);
 
