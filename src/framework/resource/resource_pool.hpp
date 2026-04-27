@@ -7,8 +7,8 @@ class resource_pool {
 public:
     template <typename... args>
     std::shared_ptr<T> add(const std::string& name, args&&... a) {
-        if (auto ptr_if_exists = get(name)) {
-            return ptr_if_exists;
+        if (auto it = pool.find(name); it != pool.end()) {
+            return it->second;
         }
 
         auto ptr = std::make_shared<T>(std::forward<args>(a)...);
