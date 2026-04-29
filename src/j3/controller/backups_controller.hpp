@@ -1,5 +1,6 @@
 #pragma once
 #include "common.hpp"
+#include "framework/core/special_folder.hpp"
 
 #include "framework/ui/controller/controller.hpp"
 #include "j3/backup/backup_manager.hpp"
@@ -11,7 +12,7 @@ public:
     
 private:
     backups_model model;
-    backup_manager manager{ "./test_backups" };
+    backup_manager manager{ special_folder::get(FOLDERID_LocalAppData) / "J3" / "Backups" };
     
     void create_backup(Rml::DataModelHandle handle, Rml::Event& e, const Rml::VariantList& args);
     void apply_backup(Rml::DataModelHandle handle, Rml::Event& e, const Rml::VariantList& args);
