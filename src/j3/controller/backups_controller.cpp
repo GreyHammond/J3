@@ -33,7 +33,7 @@ void backups_controller::bind_data(Rml::DataModelConstructor& dmc) {
     
     // init values
     minecraft game;
-    this->model.current_version = game.version();
+    this->model.current_version = game.version().string();
     
     auto current_contents = this->manager.count_backup_contents(game.data_path());
     this->model.current_w = current_contents.worlds;
@@ -46,7 +46,7 @@ void backups_controller::bind_data(Rml::DataModelConstructor& dmc) {
 void backups_controller::create_backup(Rml::DataModelHandle handle, Rml::Event& e, const Rml::VariantList& args) {
     task t = this->manager.create_backup(
         std::format("Backup {}", this->manager.get_backups().size() + 1),
-        static_cast<const minecraft_version&>(this->model.current_version)
+        this->model.current_version
     );
     
     auto& app = application::get();

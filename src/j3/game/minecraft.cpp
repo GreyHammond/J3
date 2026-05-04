@@ -5,24 +5,31 @@
 #include <winrt/windows.foundation.collections.h>
 #include <winrt/windows.storage.h>
 
+// ported legacy function: PackageData.GetVersion
 minecraft_version minecraft::version() {
     if (auto info = this->get_app_info()) {
         auto version = info->Package().Id().Version();
         
+        uint16_t major = version.Major;
         uint16_t minor = version.Minor;
         
-        // weird
+        // weird edge case here
         std::string build = std::to_string(version.Build);
+        std::string revision = build;
         if (build.length() != 1) {
             build = build.substr(0, build.length() - 2);
+            // the last number of the build is the revision
+        } else {
+            // sometimes mojang puts the revision in the right place
+            revision = std::to_string(version.Revision);
         }
+        revision = revision.substr(revision.length() - 1);
         
-        // major will always be 1 (pre GDK, 26.0)
-        return {
-            minor >= 26
-            ? std::format("{}.{}", minor, build)
-            : std::format("1.{}.{}", minor, build)
-        };
+        std::string final_version = std::format("{}.{}.{}.{}", major, minor, build, revision);
+        if (this->version_overrides.contains(final_version))
+            final_version = this->version_overrides.at(final_version);
+        
+        return { final_version };
     }
     
     return { };
@@ -59,7 +66,7 @@ bool minecraft::is_gdk() {
     minecraft_version version = this->version();
     if (version.empty()) return { };
     
-    return version[0] != '1';
+    return version.is_gdk();
 }
 
 std::optional<AppInfo> minecraft::get_app_info() {

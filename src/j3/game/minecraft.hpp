@@ -21,5 +21,10 @@ public:
     bool is_gdk();
     
 private:
+    std::unordered_map<std::string, std::string> version_overrides = {
+        { "1.20.1.0", "1.20.0.1" },
+        { "1.21.60.0", "1.21.60.10" }
+    };
+    
     std::optional<AppInfo> get_app_info();
 };

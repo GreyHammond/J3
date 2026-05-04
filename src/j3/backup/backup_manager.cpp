@@ -44,7 +44,7 @@ backup_collection& backup_manager::get_backups() {
 
 task backup_manager::create_backup(const std::string& name, const minecraft_version& for_version) {
     return { [=, this](task& t) {
-        spdlog::info("Creating {} for version {}", name, for_version);
+        spdlog::info("Creating {} for version {}", name, for_version.string(false));
         t.name = "Creating backup...";
         
         minecraft game;
@@ -76,7 +76,7 @@ task backup_manager::create_backup(const std::string& name, const minecraft_vers
         this->collection.push_back({
             name,
             final_backup_path.string(),
-            for_version,
+            for_version.string(false),
             std::chrono::system_clock::now().time_since_epoch().count(),
             this->count_backup_contents(final_backup_path)
         });
