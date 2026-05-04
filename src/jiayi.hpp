@@ -8,5 +8,3 @@ public:
 
     static jiayi& get();
 };
-
-extern char jiayi_buffer[sizeof(jiayi)];
