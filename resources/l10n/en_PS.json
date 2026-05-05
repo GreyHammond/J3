@@ -15,7 +15,7 @@
   "backups.current.new": "Write Treasure Map",
   "backups.backup.name": "{{backup.name}} ",
   "backups.backup.version": "from {{backup.from_version}}",
-  "backups.backup.contents": "{{backup.contents.worlds}} worlds - {{backup.contents.resource_packs}} resource packs - {{backup.contents.behavior_packs}} behavior packs",
+  "backups.backup.contents": "{{backup.contents.worlds}} Treasure Maps - {{backup.contents.resource_packs}} Smuggled Goods - {{backup.contents.behavior_packs}} Drunken Pirates",
   "backups.none1": "No treasure buried yet!",
   "backups.none2": "Best bury yer treasure, protect from plunder!",
   
